@@ -683,7 +683,10 @@
     for (const cand of candidateTracks) {
       const timing = await getTiming(id + cand.suffix);
       if (timing) {
-        const spans = Array.from(section.querySelectorAll(cand.selector));
+        // Group spans into sentences: an inline element (e.g. <em>) splits one
+        // sentence into several .word spans, but there's one timing per sentence,
+        // so we map sentence-groups -> words (keeps counts aligned).
+        const spans = groupSpansBySentence(Array.from(section.querySelectorAll(cand.selector)));
         tracks.push({
           suffix: cand.suffix,
           spans,
@@ -803,23 +806,25 @@
     }
     let i = playing.idx;
     while (i + 1 < words.length && t >= words[i + 1].s) i++;
-    // clamp to available spans (should match, but stay safe)
+    // clamp to available sentence-groups (should match, but stay safe)
     const maxI = Math.min(i, spans.length - 1);
     if (maxI !== playing.idx) {
       for (let k = Math.max(0, playing.idx); k < maxI; k++) {
-        if (spans[k]) { spans[k].classList.add("is-spoken"); spans[k].classList.remove("is-current"); }
+        setGroupClass(spans[k], "is-spoken", true);
+        setGroupClass(spans[k], "is-current", false);
       }
       if (spans[maxI]) {
-        spans[maxI].classList.add("is-current");
-        spans[maxI].classList.remove("is-spoken");
-        
-        // Auto-scroll the word into the center of the viewport if needed
+        setGroupClass(spans[maxI], "is-current", true);
+        setGroupClass(spans[maxI], "is-spoken", false);
+
+        // Auto-scroll the current sentence into view if needed
+        const firstSpan = spans[maxI][0];
         const viewportHeight = window.innerHeight;
-        const rect = spans[maxI].getBoundingClientRect();
+        const rect = firstSpan.getBoundingClientRect();
         if (rect.bottom > viewportHeight * 0.75 || rect.top < viewportHeight * 0.25) {
           const isInModal = playing.section.closest(".modal");
           if (isInModal || playing.section.offsetHeight > viewportHeight) {
-            scrollWordIntoView(spans[maxI]);
+            scrollWordIntoView(firstSpan);
           }
         }
       }
@@ -829,7 +834,7 @@
 
   function onEnded() {
     if (!playing) return;
-    playing.spans.forEach((s) => { s.classList.add("is-spoken"); s.classList.remove("is-current"); });
+    playing.spans.flat().forEach((s) => { s.classList.add("is-spoken"); s.classList.remove("is-current"); });
     
     // Play next track in the queue for this chapter section if there is one
     if (playing.trackIdx + 1 < playing.tracks.length) {
@@ -865,8 +870,26 @@
   }
 
   /* ---------- Highlight helpers ---------- */
+  // Group consecutive .word spans into sentences. A span ends a sentence when its
+  // trimmed text ends in . ! or ? (optionally + closing quote/bracket). Spans that
+  // don't (e.g. "…whispering," before an italic phrase) merge with what follows,
+  // so N spans collapse to the number of timed sentences.
+  function groupSpansBySentence(rawSpans) {
+    const groups = [];
+    let cur = [];
+    for (const sp of rawSpans) {
+      cur.push(sp);
+      if (/[.!?]["'”’)\]]*$/.test(sp.textContent.trim())) { groups.push(cur); cur = []; }
+    }
+    if (cur.length) groups.push(cur); // trailing group with no end punctuation (e.g. a title)
+    return groups;
+  }
+  function setGroupClass(group, cls, on) {
+    if (!group) return;
+    for (const sp of group) { if (on) sp.classList.add(cls); else sp.classList.remove(cls); }
+  }
   function resetSpans(spans) {
-    spans.forEach((s) => s.classList.remove("is-spoken", "is-current"));
+    spans.flat().forEach((s) => s.classList.remove("is-spoken", "is-current"));
   }
   function clearHighlights() {
     document
