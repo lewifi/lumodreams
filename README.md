@@ -2,7 +2,7 @@
 
 An interactive telling of the short story *"Lumo Dreams of Being a Real Human"* by
 **Lewi Hirvelä**. Each chapter plays a looping Arctic-aurora video behind the text.
-Deployed as a **Cloudflare Worker (static assets)** at **lumodreams.lewihirvela.com**.
+Deployed as a **Cloudflare Worker (static assets)** at **lumodreams.com**.
 
 ## Structure
 
@@ -37,7 +37,7 @@ Or just open `public/index.html` in a browser (autoplay of muted video works off
 → *Workers & Pages* → *Create* → *Connect to Git*. Set the deploy command to
 `npx wrangler deploy`. Every push to the default branch redeploys.
 
-Add the custom domain **lumodreams.lewihirvela.com** under the Worker's
+Add the custom domain **lumodreams.com** under the Worker's
 *Settings → Domains & Routes* (zone `lewihirvela.com`).
 
 ## v2 — read-along narration

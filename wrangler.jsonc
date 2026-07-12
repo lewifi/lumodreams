@@ -7,6 +7,6 @@
     "directory": "./public"
     // Single static page; default not_found_handling ("none" → 404) is fine.
   }
-  // Custom domain lumodreams.lewihirvela.com is attached to this Worker in the
-  // Cloudflare dashboard (Workers › lumodreams › Settings › Domains & Routes).
+  // Custom domain lumodreams.com is attached to this Worker in the Cloudflare
+  // dashboard (Workers › lumodreams › Settings › Domains & Routes).
 }

@@ -1,6 +1,6 @@
 # Lumo Dreams — Interactive Story Site
 
-Build an interactive version of the short story **"Lumo Dreams of Being a Real Human"** by Lewi Hirvelä. Each chapter has a looping video playing **behind** the text. Deploys as a **Cloudflare Worker (static assets)** connected to **GitHub**, served at **lumodreams.lewihirvela.com**.
+Build an interactive version of the short story **"Lumo Dreams of Being a Real Human"** by Lewi Hirvelä. Each chapter has a looping video playing **behind** the text. Deploys as a **Cloudflare Worker (static assets)** connected to **GitHub**, served at **lumodreams.com**.
 
 ## Source assets (in repo root)
 - `Draft of Lumo Dreams of Being a Real Human.docx.pdf` — the story text (source of truth for chapter copy).
@@ -41,7 +41,7 @@ Unused/alternate files to ignore: `The Turning Poi nt 2.mp4`, `a9666840-….mp4`
 ## Hosting
 - Cloudflare **Worker with static assets** (`wrangler.toml` with `[assets] directory = "./public"` or the current Workers Static Assets convention — check latest docs).
 - Connect the GitHub repo to Cloudflare for push-to-deploy.
-- Custom domain: **lumodreams.lewihirvela.com** (add route / custom domain in Cloudflare; zone is `lewihirvela.com`).
+- Custom domain: **lumodreams.com** (add route / custom domain in Cloudflare; its own zone `lumodreams.com`). Previously served at lumodreams.lewihirvela.com.
 - Videos total ~4MB — fine to serve as static assets.
 
 ## Suggested structure
