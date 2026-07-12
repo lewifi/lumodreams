@@ -337,6 +337,18 @@
     }
   }
 
+  function updateVideoMuteState() {
+    const shouldMute = !enabled || isPaused || isMusicMuted;
+    document.querySelectorAll(".chapter").forEach((section) => {
+      [section._video, section._videoMorph].forEach((v) => {
+        if (v) {
+          v.muted = shouldMute;
+          v.volume = 0.3; // soft background sfx level
+        }
+      });
+    });
+  }
+
   // Place the large intro pill centred, just above the cover's action buttons.
   // The panel rests at the bottom-right corner; we translate it up to the intro
   // spot, then enable() clears the transform so it flies back to the corner.
@@ -364,6 +376,7 @@
     if (!playing) return;
     
     isPaused = !isPaused;
+    document.body.classList.toggle("narration-paused", isPaused);
     if (isPaused) {
       audio.pause();
       if (activeMusic) activeMusic.pause();
@@ -377,10 +390,12 @@
       pauseBtn.innerHTML = '⏸ Pause';
       pauseBtn.classList.remove("is-active");
     }
+    updateVideoMuteState();
   }
 
   function toggleMusic() {
     isMusicMuted = !isMusicMuted;
+    document.body.classList.toggle("music-muted", isMusicMuted);
     if (isMusicMuted) {
       musicA.volume = 0;
       musicB.volume = 0;
@@ -403,6 +418,7 @@
         }
       }
     }
+    updateVideoMuteState();
   }
 
   function getActiveSection() {
@@ -428,6 +444,7 @@
     isPaused = false;
     ensureMusicGraph(); // set up the high-pass routing (needs this user gesture)
     document.body.classList.add("narrating");
+    document.body.classList.remove("narration-paused");
 
     // Swap the big intro pill for the controls, then fly the panel to the corner:
     // clearing the intro transform lets the CSS transition animate it home.
@@ -441,12 +458,14 @@
     const target = getActiveSection() || manifest[0];
     currentVisible = target;
     playSection(target); // starts section audio + music/ambience (updateMusic)
+    updateVideoMuteState();
   }
 
   function disable() {
     enabled = false;
     isPaused = false;
     document.body.classList.remove("narrating");
+    document.body.classList.remove("narration-paused");
 
     controlsDiv.style.display = "none";
     startBtn.innerHTML = '<span class="narrate-ico">▶</span> Read to me'; // compact corner restart
@@ -456,6 +475,7 @@
     clearHighlights();
     fadeOutMusic();
     setAmbience(0);
+    updateVideoMuteState();
   }
 
   /* ---------- Which chapter is in view ---------- */
@@ -570,6 +590,7 @@
     loadingId = null;
     playTrack(0);
     updateMusic(id);
+    updateVideoMuteState();
   }
 
   async function playTrack(idx) {

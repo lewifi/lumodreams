@@ -43,8 +43,11 @@
   }
 
   function playSectionVideos(section) {
+    const isNarrating = document.body.classList.contains("narrating");
     [section._video, section._videoMorph].forEach((v) => {
       if (!v) return;
+      v.muted = !isNarrating;
+      v.volume = 0.3;
       const p = v.play();
       if (p && p.catch) p.catch(() => {}); // ignore autoplay rejections
     });
