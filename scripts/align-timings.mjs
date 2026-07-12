@@ -78,8 +78,8 @@ The response schema must be:
         ]
       }
     ],
-    generation_config: {
-      response_mime_type: "application/json"
+    generationConfig: {
+      responseMimeType: "application/json"
     }
   };
 
