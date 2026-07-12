@@ -57,6 +57,7 @@
   }
   function pauseSectionVideos(section) {
     [section._video, section._videoMorph].forEach((v) => v && v.pause());
+    section.classList.remove("is-morphed");
   }
 
   const inView = new Set();

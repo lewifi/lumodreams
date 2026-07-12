@@ -662,6 +662,19 @@
       }
     }
 
+    // Check for video demorph cue on the main body track
+    let demorphAt = null;
+    const demorphCue = section.dataset.demorphCue;
+    if (demorphCue && section.dataset.videoMorph) {
+      const bodyTrack = tracks.find((t) => t.suffix === "");
+      if (bodyTrack) {
+        const hit = bodyTrack.words.find((w) =>
+          w.w.toLowerCase().includes(demorphCue.toLowerCase())
+        );
+        if (hit) demorphAt = hit.s;
+      }
+    }
+
     section.classList.remove("is-morphed");
 
     playing = {
@@ -673,6 +686,7 @@
       words: tracks[0].words,
       idx: -1,
       morphAt,
+      demorphAt,
     };
 
     loadingId = null;
@@ -718,6 +732,11 @@
       if (window.__lumoTriggerMorph) window.__lumoTriggerMorph(playing.section);
       else playing.section.classList.add("is-morphed");
       playing.morphAt = null; // once
+    }
+    // Video demorph (fade back to original video loop)
+    if (currentTrack.suffix === "" && playing.demorphAt != null && t >= playing.demorphAt) {
+      playing.section.classList.remove("is-morphed");
+      playing.demorphAt = null; // once
     }
     let i = playing.idx;
     while (i + 1 < words.length && t >= words[i + 1].s) i++;
@@ -781,6 +800,7 @@
   function stop() {
     audio.pause();
     playing = null;
+    document.querySelectorAll(".chapter").forEach((s) => s.classList.remove("is-morphed"));
   }
 
   /* ---------- Highlight helpers ---------- */
