@@ -72,7 +72,7 @@
     let steps = 20;
     const duration = 2000; // 2 seconds cross-fade
     const intervalTime = duration / steps;
-    const targetVolume = 0.3; // 30% volume
+    const targetVolume = 0.15; // 15% volume
     
     if (musicFadeInterval) clearInterval(musicFadeInterval);
     
@@ -218,7 +218,7 @@
           const r = ratios.get(id) || 0;
           if (r > bestR) { bestR = r; best = id; }
         }
-        if (best && bestR >= 0.55 && best !== currentVisible) {
+        if (best && bestR >= 0.3 && best !== currentVisible) {
           currentVisible = best;
           if (enabled && (!playing || playing.id !== best) && loadingId !== best) {
             playSection(best);
@@ -228,7 +228,7 @@
           }
         }
       },
-      { threshold: [0, 0.55, 0.8] }
+      { threshold: [0, 0.3, 0.8] }
     );
     manifest.forEach((id) => {
       const s = document.getElementById(id);
@@ -409,7 +409,9 @@
     if (manifest.indexOf(finishedId) === -1) return;
     const next = manifest[manifest.indexOf(finishedId) + 1];
     if (next) {
-      scrollToSection(next); // IntersectionObserver picks it up and plays it
+      currentVisible = next;
+      scrollToSection(next);
+      playSection(next);
     } else {
       scrollToSection("theend"); // gentle close
       enabled = false;
