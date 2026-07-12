@@ -1,12 +1,12 @@
 {
   // Lumo Dreams — static-assets-only Worker.
   // No `main`/`binding`: there is no Worker script, just files served from ./public.
-  "name": "lumo-dreams",
+  "name": "lumodreams",
   "compatibility_date": "2026-07-12",
   "assets": {
     "directory": "./public"
     // Single static page; default not_found_handling ("none" → 404) is fine.
   }
-  // Custom domain lumodreams.lewihirvela.com is attached in the Cloudflare
-  // dashboard (Workers › Settings › Domains & Routes) on zone lewihirvela.com.
+  // Custom domain lumodreams.lewihirvela.com is attached to this Worker in the
+  // Cloudflare dashboard (Workers › lumodreams › Settings › Domains & Routes).
 }
