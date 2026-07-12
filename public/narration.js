@@ -54,10 +54,10 @@
   let currentMusicUrl = null;
   let musicFadeInterval = null;
 
-  const MUSIC_VOL = 0.12;         // melody level
-  const MUSIC_HIGHPASS_HZ = 300;  // thin the music so it sits over voice + ambience
+  const MUSIC_VOL = 0.15;         // melody level
+  const MUSIC_LOWPASS_HZ = 1200;  // roll off highs so the music is warm/soft and sits back
 
-  // Route the two music elements through a shared high-pass filter (Web Audio).
+  // Route the two music elements through a shared low-pass filter (Web Audio).
   // Must be created after a user gesture (enable), and only once per element.
   let audioCtx = null;
   function ensureMusicGraph() {
@@ -67,11 +67,11 @@
     }
     try {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const hp = audioCtx.createBiquadFilter();
-      hp.type = "highpass";
-      hp.frequency.value = MUSIC_HIGHPASS_HZ;
-      hp.connect(audioCtx.destination);
-      [musicA, musicB].forEach((el) => audioCtx.createMediaElementSource(el).connect(hp));
+      const lp = audioCtx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = MUSIC_LOWPASS_HZ;
+      lp.connect(audioCtx.destination);
+      [musicA, musicB].forEach((el) => audioCtx.createMediaElementSource(el).connect(lp));
       if (audioCtx.state === "suspended") audioCtx.resume();
     } catch (e) {
       audioCtx = null; // fall back to plain playback (no filter)
@@ -145,8 +145,8 @@
   ambience.preload = "auto";
   ambience.src = "music/nordic-ambience.mp3";
   ambience.volume = 0;
-  const AMBIENCE_UNDER_MUSIC = 0.08; // ducked while a melody plays
-  const AMBIENCE_LEAD = 0.2;         // main bed when no melody (middle chapters)
+  const AMBIENCE_UNDER_MUSIC = 0.05; // ducked while a melody plays
+  const AMBIENCE_LEAD = 0.1;         // main bed when no melody (middle chapters)
   let ambienceTarget = 0;
   let ambienceFade = null;
 
