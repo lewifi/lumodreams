@@ -624,7 +624,7 @@
   async function getTiming(id) {
     if (timingCache.has(id)) return timingCache.get(id);
     try {
-      const res = await fetch(BASE + id + ".json", { cache: "force-cache" });
+      const res = await fetch(BASE + id + ".json", { cache: "no-cache" });
       if (!res.ok) return null;
       const data = await res.json();
       timingCache.set(id, data);
