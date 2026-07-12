@@ -142,19 +142,30 @@
     const out = [];
     node.childNodes.forEach((child) => {
       if (child.nodeType === Node.TEXT_NODE) {
-        child.textContent.split(/(\s+)/).forEach((tok) => {
-          if (tok === "") return;
-          if (/^\s+$/.test(tok)) {
-            out.push(document.createTextNode(tok));
+        const text = child.textContent;
+        const parts = text.split(/([.!?]\s+)/);
+        for (let i = 0; i < parts.length; i++) {
+          const part = parts[i];
+          if (!part) continue;
+          if (i % 2 === 0) {
+            if (/^\s+$/.test(part)) {
+              out.push(document.createTextNode(part));
+            } else {
+              const s = document.createElement("span");
+              s.className = "word";
+              s.textContent = part;
+              out.push(s);
+            }
           } else {
-            const s = document.createElement("span");
-            s.className = "word";
-            s.textContent = tok;
-            out.push(s);
+            if (out.length > 0 && out[out.length - 1].nodeType === Node.ELEMENT_NODE) {
+              out[out.length - 1].textContent += part;
+            } else {
+              out.push(document.createTextNode(part));
+            }
           }
-        });
+        }
       } else if (child.nodeType === Node.ELEMENT_NODE && child.tagName !== "BR") {
-        wordifyNode(child); // wrap words inside <em> etc. in place
+        wordifyNode(child); // wrap sentences inside <em> etc. in place
         out.push(child);
       } else {
         out.push(child.cloneNode(true)); // <br>, comments, …

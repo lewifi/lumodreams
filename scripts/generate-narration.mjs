@@ -253,10 +253,31 @@ async function synthParagraph(chapter, para, attempt = 1) {
   return trimSilence(Buffer.from(b64, "base64"));
 }
 
-// Distribute word timings across [t0, t0+dur] for one paragraph.
+// Distribute sentence timings across [t0, t0+dur] for one paragraph.
 function paragraphTimings(text, t0, dur) {
   const cleanText = text.replace(/\[.*?\]/g, "");
-  const toks = cleanText.split(/\s+/).filter(Boolean);
+  
+  // Split cleanText into sentences matching the frontend splitting rules
+  const parts = cleanText.split(/([.!?]\s+)/);
+  const toks = [];
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    if (!part) continue;
+    if (i % 2 === 0) {
+      if (part.trim().length > 0) {
+        toks.push(part);
+      }
+    } else {
+      if (toks.length > 0) {
+        toks[toks.length - 1] += part;
+      }
+    }
+  }
+
+  if (toks.length === 0) {
+    toks.push(cleanText);
+  }
+
   const weights = toks.map(tokenWeight);
   const total = weights.reduce((a, b) => a + b, 0) || 1;
   const words = [];
@@ -265,7 +286,7 @@ function paragraphTimings(text, t0, dur) {
     const s = t0 + (dur * acc) / total;
     acc += weights[i];
     const e = t0 + (dur * acc) / total;
-    words.push({ w: toks[i], s: +s.toFixed(3), e: +e.toFixed(3) });
+    words.push({ w: toks[i].trim(), s: +s.toFixed(3), e: +e.toFixed(3) });
   }
   return words;
 }
