@@ -565,6 +565,10 @@ body.modal-open { overflow: hidden; }
   /* Split layout overrides for desktop */
   body.layout-split .chapter:not(.cover):not(.theend) {
     justify-content: flex-start;
+    padding: 0 !important;
+    height: 100vh;
+    min-height: 100vh;
+    overflow: hidden;
   }
   
   body.layout-split .chapter:not(.cover):not(.theend) video.bg,
@@ -588,7 +592,8 @@ body.modal-open { overflow: hidden; }
     -webkit-backdrop-filter: none;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    padding: 4rem clamp(2rem, 5vw, 6rem);
+    justify-content: flex-start;
+    padding: clamp(4rem, 8vh, 6rem) clamp(2rem, 5vw, 6rem) 4rem;
+    overflow-y: auto;
   }
 }
