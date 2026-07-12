@@ -30,6 +30,37 @@ export const chapters = [
     ]
   },
   {
+    // The preface is a modal, not part of the scroll flow (inFlow: false), so it
+    // is excluded from the read-along manifest. narration.js plays it when the
+    // preface modal is opened. Paragraph text matches the #preface modal prose.
+    id: "preface",
+    title: "Preface",
+    inFlow: false,
+    mood: "the author’s warm, personal prologue — an intimate hush before the tale",
+    paragraphs: [
+      {
+        text: "A story inspired by the Nordic Lapland, Hong Kong and Australia, in three dogs and one human heart, with love from Lumi the Border Collie, Susi the Husky, Molly the Cavoodle, and me.",
+        mood: "affectionate dedication",
+        expression: "warm and heartfelt, a gentle smile in the voice"
+      },
+      {
+        text: "I lived for seven months in my father’s home town of Ivalo in Finnish Lapland and three more years elsewhere in Finland. Winter there can be fierce, with temperatures falling to forty below zero. The air bites at your lungs, the land lies buried beneath deep snow, and the polar nights wrap the world in a long, blue darkness. Yet the sky can surprise you with extraordinary beauty. Sometimes the aurora ripples in green and violet, dancing like ribbons against the night.",
+        mood: "evocative, atmospheric reminiscence",
+        expression: "hushed wonder at the fierce beauty, unhurried"
+      },
+      {
+        text: "My father grew up as a reindeer herder. He skied through the forests and fells for hundreds of kilometres, relying on instinct to navigate the endless whiteness. From him I learned how people and animals survive in such a place, and how they thrive too.",
+        mood: "fond, respectful memory",
+        expression: "gentle and admiring"
+      },
+      {
+        text: "I have lived with six dogs, border collies and huskies, and now a cavoodle, each one with its own voice and spirit. They taught me about loyalty, curiosity, and love without a single word spoken. This story of Lumo, an Australian Shepherd puppy who longed to be human, is rooted in those experiences. The events are imagined, but the feelings belong to the Arctic I came to know.",
+        mood: "loving, reflective dedication",
+        expression: "tender and sincere, settling into the story"
+      }
+    ]
+  },
+  {
     id: "ch1",
     title: "A Puppy’s World",
     mood: "warm, cosy, pastoral wonder — the safe world of a beloved puppy",

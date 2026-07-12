@@ -10,16 +10,23 @@
 // Gemini TTS returns audio only (no word timestamps), which is why we estimate
 // timings this way rather than reading them back from the API.
 //
-// Usage:
-//   set GEMINI_API_KEY=...            (Windows PowerShell: $env:GEMINI_API_KEY="...")
-//   node scripts/generate-narration.mjs
+// Usage (Windows PowerShell):
+//   $env:GEMINI_API_KEY="..."
+//   node scripts/generate-narration.mjs                       # all MISSING chapters
+//   node scripts/generate-narration.mjs ch4 ch5 epilogue preface   # just these (aliases ok)
+//   node scripts/generate-narration.mjs --force               # regenerate everything
+//
+// Already-generated chapters are skipped unless named explicitly or --force is
+// used, so you can grab a few at a time (free tier is ~3 calls/min). The manifest
+// is rebuilt from whatever .wav files are present, in canonical order.
 //
 // Output (git-committed, served as static assets):
 //   public/audio/<id>.wav
 //   public/audio/<id>.json      { id, duration, words:[{w,s,e}] }
-//   public/audio/manifest.json  [ ids... ]  (chapter order)
+//   public/audio/manifest.json  [ ids... ]  (read-along scroll flow only)
 
 import { writeFile, mkdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { chapters } from "./chapters.mjs";
@@ -54,7 +61,8 @@ function stylePrompt(chapter, para) {
 }
 const SAMPLE_RATE = 24000; // Gemini TTS PCM output: 24 kHz, 16-bit, mono
 const SILENCE_MS = 450; // pause inserted between paragraphs
-const CALL_DELAY_MS = 600; // gap between API calls (be kind to rate limits)
+// Free-tier TTS is ~3 requests/min → ~20s between calls. Override with GEMINI_TTS_DELAY_MS.
+const CALL_DELAY_MS = parseInt(process.env.GEMINI_TTS_DELAY_MS || "20000", 10);
 
 // ---- Helpers -------------------------------------------------------------
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -133,11 +141,11 @@ async function synthParagraph(chapter, para, attempt = 1) {
   });
   if (!res.ok) {
     const msg = await res.text();
-    if ((res.status === 429 || res.status >= 500) && attempt <= 5) {
-      const wait = 1500 * attempt;
-      console.warn(`  · ${res.status}, retrying in ${wait}ms (attempt ${attempt})`);
+    if ((res.status === 429 || res.status >= 500) && attempt <= 6) {
+      const wait = res.status === 429 ? 25000 : 1500 * attempt; // 3 RPM → back off ~25s
+      console.warn(`  · ${res.status}, retrying in ${Math.round(wait / 1000)}s (attempt ${attempt})`);
       await sleep(wait);
-      return synthParagraph(text, attempt + 1);
+      return synthParagraph(chapter, para, attempt + 1);
     }
     throw new Error(`TTS ${res.status}: ${msg.slice(0, 300)}`);
   }
@@ -164,58 +172,95 @@ function paragraphTimings(text, t0, dur) {
   return words;
 }
 
+// Resolve CLI ids (with friendly aliases) to chapter ids.
+const ALIASES = { epilogue: "epilogue-ch", cover: "cover", preface: "preface" };
+function resolveId(arg) {
+  const a = arg.toLowerCase();
+  if (ALIASES[a]) return ALIASES[a];
+  if (/^\d+$/.test(a)) return "ch" + a; // "4" → "ch4"
+  if (/^chapter\s*\d+$/.test(a)) return "ch" + a.replace(/\D/g, "");
+  return a; // assume it's already a valid id (ch1, epilogue-ch, …)
+}
+
+async function generateChapter(ch, silence) {
+  console.log(`▶ ${ch.id} — ${ch.title}`);
+  const pcmChunks = [];
+  const words = [];
+  let cursorSamples = 0;
+
+  for (let p = 0; p < ch.paragraphs.length; p++) {
+    const para = ch.paragraphs[p];
+    process.stdout.write(`  · paragraph ${p + 1}/${ch.paragraphs.length} … `);
+    const pcm = await synthParagraph(ch, para);
+    const dur = pcm.length / 2 / SAMPLE_RATE;
+    const t0 = cursorSamples / SAMPLE_RATE;
+    words.push(...paragraphTimings(para.text, t0, dur));
+    pcmChunks.push(pcm);
+    cursorSamples += pcm.length / 2;
+    if (p < ch.paragraphs.length - 1) {
+      pcmChunks.push(silence);
+      cursorSamples += silence.length / 2;
+    }
+    console.log(`${dur.toFixed(1)}s`);
+    await sleep(CALL_DELAY_MS);
+  }
+
+  const data = Buffer.concat(pcmChunks);
+  const duration = +(data.length / 2 / SAMPLE_RATE).toFixed(3);
+  await writeFile(join(OUT_DIR, `${ch.id}.wav`), Buffer.concat([wavHeader(data.length), data]));
+  await writeFile(
+    join(OUT_DIR, `${ch.id}.json`),
+    JSON.stringify({ id: ch.id, voice: VOICE, duration, words })
+  );
+  console.log(`  ✓ ${ch.id}.wav (${duration.toFixed(1)}s, ${words.length} words)\n`);
+}
+
+// Rebuild the read-along manifest from whatever audio is present on disk, in
+// canonical chapter order, excluding standalone entries (inFlow: false).
+async function writeManifest() {
+  const present = chapters
+    .filter((c) => c.inFlow !== false && existsSync(join(OUT_DIR, `${c.id}.wav`)))
+    .map((c) => c.id);
+  await writeFile(join(OUT_DIR, "manifest.json"), JSON.stringify(present));
+  return present;
+}
+
 // ---- Main ----------------------------------------------------------------
 async function main() {
+  const args = process.argv.slice(2);
+  const force = args.includes("--force");
+  const requested = new Set(args.filter((a) => !a.startsWith("--")).map(resolveId));
+
   if (!API_KEY) {
     console.error(
       "Missing GEMINI_API_KEY.\n" +
-        "Get a key at https://aistudio.google.com/apikey then:\n" +
-        '  PowerShell:  $env:GEMINI_API_KEY="your-key"; node scripts/generate-narration.mjs'
+        "Get a key at https://aistudio.google.com/apikey then, in PowerShell:\n" +
+        '  $env:GEMINI_API_KEY="your-key"\n' +
+        "  node scripts/generate-narration.mjs                 # all missing chapters\n" +
+        "  node scripts/generate-narration.mjs ch4 ch5 epilogue preface   # just these\n\n" +
+        "Available ids: " + chapters.map((c) => c.id).join(", ")
     );
     process.exit(1);
   }
   await mkdir(OUT_DIR, { recursive: true });
-  console.log(`Voice: ${VOICE}  ·  Model: ${MODEL}\n`);
+  console.log(`Voice: ${VOICE}  ·  Model: ${MODEL}  ·  ~${(CALL_DELAY_MS / 1000).toFixed(0)}s between calls\n`);
 
   const silence = silenceBuffer(SILENCE_MS);
-  const manifest = [];
+  let done = 0;
 
   for (const ch of chapters) {
-    console.log(`▶ ${ch.id} — ${ch.title}`);
-    const pcmChunks = [];
-    const words = [];
-    let cursorSamples = 0; // running length in samples
-
-    for (let p = 0; p < ch.paragraphs.length; p++) {
-      const para = ch.paragraphs[p];
-      process.stdout.write(`  · paragraph ${p + 1}/${ch.paragraphs.length} … `);
-      const pcm = await synthParagraph(ch, para);
-      const dur = pcm.length / 2 / SAMPLE_RATE;
-      const t0 = cursorSamples / SAMPLE_RATE;
-      words.push(...paragraphTimings(para.text, t0, dur));
-      pcmChunks.push(pcm);
-      cursorSamples += pcm.length / 2;
-      if (p < ch.paragraphs.length - 1) {
-        pcmChunks.push(silence);
-        cursorSamples += silence.length / 2;
-      }
-      console.log(`${dur.toFixed(1)}s`);
-      await sleep(CALL_DELAY_MS);
+    const has = existsSync(join(OUT_DIR, `${ch.id}.wav`));
+    const shouldGen = requested.size ? requested.has(ch.id) : force || !has;
+    if (!shouldGen) {
+      console.log(`— skip ${ch.id} (${has ? "already generated" : "not requested"})`);
+      continue;
     }
-
-    const data = Buffer.concat(pcmChunks);
-    const duration = +(data.length / 2 / SAMPLE_RATE).toFixed(3);
-    await writeFile(join(OUT_DIR, `${ch.id}.wav`), Buffer.concat([wavHeader(data.length), data]));
-    await writeFile(
-      join(OUT_DIR, `${ch.id}.json`),
-      JSON.stringify({ id: ch.id, voice: VOICE, duration, words })
-    );
-    manifest.push(ch.id);
-    console.log(`  ✓ ${ch.id}.wav (${duration.toFixed(1)}s, ${words.length} words)\n`);
+    await generateChapter(ch, silence);
+    done++;
   }
 
-  await writeFile(join(OUT_DIR, "manifest.json"), JSON.stringify(manifest));
-  console.log(`Done. Wrote ${manifest.length} chapters to public/audio/.`);
+  const manifest = await writeManifest();
+  console.log(`Done. Generated ${done} chapter(s). Manifest (read-along flow): ${manifest.join(", ") || "(none)"}.`);
 }
 
 main().catch((e) => {

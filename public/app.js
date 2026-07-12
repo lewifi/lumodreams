@@ -111,12 +111,14 @@
     document.body.classList.add("modal-open");
     const closeBtn = modal.querySelector(".modal-close");
     if (closeBtn) closeBtn.focus();
+    document.dispatchEvent(new CustomEvent("preface:open")); // narration.js may narrate it
   }
 
   function closePreface() {
     modal.hidden = true;
     document.body.classList.remove("modal-open");
     if (lastFocused && lastFocused.focus) lastFocused.focus();
+    document.dispatchEvent(new CustomEvent("preface:close"));
   }
 
   document.querySelectorAll("[data-open-preface]").forEach((btn) =>

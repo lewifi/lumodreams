@@ -48,6 +48,18 @@
     document.addEventListener("visibilitychange", () => {
       if (document.hidden && playing) audio.pause();
     });
+
+    // Preface modal narration: when read-along is on and the modal opens, narrate
+    // it (playSection no-ops if there is no preface audio). Stop when it closes.
+    document.addEventListener("preface:open", () => {
+      if (enabled) playSection("preface");
+    });
+    document.addEventListener("preface:close", () => {
+      if (playing && playing.id === "preface") {
+        stop();
+        clearHighlights();
+      }
+    });
   }
 
   /* ---------- UI toggle ---------- */
@@ -195,6 +207,8 @@
     const finishedId = playing.id;
     stop();
     if (!enabled) return;
+    // Standalone sections (e.g. the preface modal) aren't in the flow — don't advance.
+    if (manifest.indexOf(finishedId) === -1) return;
     const next = manifest[manifest.indexOf(finishedId) + 1];
     if (next) {
       scrollToSection(next); // IntersectionObserver picks it up and plays it
