@@ -37,7 +37,7 @@ const OUT_DIR = join(__dirname, "..", "public", "audio");
 
 // ---- Config (tweak to taste) --------------------------------------------
 const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = process.env.GEMINI_TTS_MODEL || "gemini-3.1-flash-tts";
+const MODEL = process.env.GEMINI_TTS_MODEL || "gemini-3.1-flash-tts-preview";
 // Soft/whimsical female prebuilt voices worth trying:
 //   Leda (youthful) · Achernar (soft) · Aoede (breezy) · Vindemiatrix (gentle) · Sulafat (warm)
 const VOICE = process.env.GEMINI_TTS_VOICE || "Leda";
