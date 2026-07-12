@@ -54,6 +54,30 @@
   let currentMusicUrl = null;
   let musicFadeInterval = null;
 
+  const MUSIC_VOL = 0.3;          // melody level
+  const MUSIC_HIGHPASS_HZ = 300;  // thin the music so it sits over voice + ambience
+
+  // Route the two music elements through a shared high-pass filter (Web Audio).
+  // Must be created after a user gesture (enable), and only once per element.
+  let audioCtx = null;
+  function ensureMusicGraph() {
+    if (audioCtx) {
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      return;
+    }
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const hp = audioCtx.createBiquadFilter();
+      hp.type = "highpass";
+      hp.frequency.value = MUSIC_HIGHPASS_HZ;
+      hp.connect(audioCtx.destination);
+      [musicA, musicB].forEach((el) => audioCtx.createMediaElementSource(el).connect(hp));
+      if (audioCtx.state === "suspended") audioCtx.resume();
+    } catch (e) {
+      audioCtx = null; // fall back to plain playback (no filter)
+    }
+  }
+
   function playMusic(url) {
     if (!enabled) return;
     if (currentMusicUrl === url) return; // Keep playing and looping seamlessly
@@ -72,7 +96,7 @@
     let steps = 20;
     const duration = 2000; // 2 seconds cross-fade
     const intervalTime = duration / steps;
-    const targetVolume = isMusicMuted ? 0 : 0.15;
+    const targetVolume = isMusicMuted ? 0 : MUSIC_VOL;
     
     if (musicFadeInterval) clearInterval(musicFadeInterval);
     
@@ -305,7 +329,7 @@
       musicBtn.classList.remove("is-active");
       if (enabled) {
         if (activeMusic) {
-          activeMusic.volume = 0.15;
+          activeMusic.volume = MUSIC_VOL;
           activeMusic.play().catch(() => {});
         }
         if (ambienceTarget > 0) {
@@ -337,6 +361,7 @@
   function enable() {
     enabled = true;
     isPaused = false;
+    ensureMusicGraph(); // set up the high-pass routing (needs this user gesture)
     document.body.classList.add("narrating");
 
     startBtn.style.display = "none";
