@@ -883,11 +883,15 @@
       if (!enabled) {
         updateStartButtonLabel();
       }
-      if (reduceMotion) {
-        s.scrollIntoView({ behavior: "auto", block: "start" });
+      const container = document.getElementById("story");
+      if (container) {
+        if (reduceMotion) {
+          container.scrollTop = s.offsetTop;
+        } else {
+          animateScrollTo(container, s.offsetTop, 1000);
+        }
       } else {
-        const absoluteTop = s.getBoundingClientRect().top + window.scrollY;
-        animateScrollTo(window, absoluteTop, 1000);
+        s.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
       }
     }
   }
