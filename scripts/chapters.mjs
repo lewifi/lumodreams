@@ -219,7 +219,7 @@ export const chapters = [
         expression: "softly stated; pause briefly after"
       },
       {
-        text: "[warmly] The family found her just after dawn. [gasp] They gathered around her with relief and love. The father carried her back to the house, the mother wrapped her in a blanket, and [joyfully] the youngest girl hugged her so tightly that Lumo let out a tired [sigh] but contented sigh.",
+        text: "[warmly] The family found her just after dawn. [gasp] They gathered around her with relief and love. Lumo was carried back to the house, wrapped in a warm blanket, and [joyfully] the girls hugged her so tightly that she let out a tired [sigh] but contented sigh.",
         mood: "tearful relief and love",
         expression: "tender joy, a soft contented sigh"
       },
