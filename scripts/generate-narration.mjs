@@ -291,17 +291,23 @@ function paragraphTimings(text, t0, dur) {
   return words;
 }
 
-// Resolve CLI ids (with friendly aliases) to chapter ids.
+// Resolve CLI ids (with friendly aliases) to chapter ids or track ids.
 const ALIASES = { epilogue: "epilogue-ch", cover: "cover", preface: "preface" };
 function resolveId(arg) {
   const a = arg.toLowerCase();
-  if (ALIASES[a]) return ALIASES[a];
-  if (/^\d+$/.test(a)) return "ch" + a; // "4" → "ch4"
-  if (/^chapter\s*\d+$/.test(a)) return "ch" + a.replace(/\D/g, "");
-  return a; // assume it's already a valid id (ch1, epilogue-ch, …)
+  const suffixMatch = /(\-(?:eyebrow|title))$/.exec(a);
+  const suffix = suffixMatch ? suffixMatch[1] : "";
+  const base = suffixMatch ? a.slice(0, -suffix.length) : a;
+
+  let resolvedBase = base;
+  if (ALIASES[base]) resolvedBase = ALIASES[base];
+  else if (/^\d+$/.test(base)) resolvedBase = "ch" + base; // "4" → "ch4"
+  else if (/^chapter\s*\d+$/.test(base)) resolvedBase = "ch" + base.replace(/\D/g, "");
+
+  return resolvedBase + suffix;
 }
 
-async function generateChapter(ch, silence, force) {
+async function generateChapter(ch, silence, force, requestedTracks = null) {
   console.log(`▶ ${ch.id} — ${ch.title}`);
   
   const subTracks = [];
@@ -315,8 +321,17 @@ async function generateChapter(ch, silence, force) {
 
   for (const track of subTracks) {
     const trackId = `${ch.id}${track.suffix}`;
+    
+    // Skip if track filter is active and this track isn't requested
+    if (requestedTracks && requestedTracks.size > 0) {
+      if (!requestedTracks.has(trackId) && !requestedTracks.has(ch.id)) {
+        continue;
+      }
+    }
+
     const has = existsSync(join(OUT_DIR, `${trackId}.mp3`));
-    if (has && !force) {
+    const isExplicitlyRequested = requestedTracks && requestedTracks.has(trackId);
+    if (has && !force && !isExplicitlyRequested) {
       console.log(`  — skip ${trackId} (already generated)`);
       continue;
     }
@@ -395,13 +410,16 @@ async function main() {
     const hasTitle = ch.id === "cover" || existsSync(join(OUT_DIR, `${ch.id}-title.mp3`));
     const has = hasBody && hasEyebrow && hasTitle;
     
-    const shouldGen = requested.size ? requested.has(ch.id) : force || !has;
+    const isChapterRequested = requested.has(ch.id);
+    const isSubTrackRequested = Array.from(requested).some((reqId) => reqId.startsWith(ch.id + "-"));
+    const shouldGen = requested.size ? (isChapterRequested || isSubTrackRequested) : force || !has;
+    
     if (!shouldGen) {
       console.log(`— skip ${ch.id} (${has ? "already generated" : "not requested"})`);
       continue;
     }
     try {
-      await generateChapter(ch, silence, force);
+      await generateChapter(ch, silence, force, requested);
       done++;
     } catch (e) {
       failure = e; // stop, but keep whatever finished
