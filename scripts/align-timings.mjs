@@ -61,7 +61,7 @@ The response schema must be:
 ]
 `;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+  const url = `https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent`;
   const body = {
     contents: [
       {
