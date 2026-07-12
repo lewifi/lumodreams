@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const AUDIO_DIR = join(__dirname, "..", "public", "audio");
 const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = "gemini-3.1-flash-lite";
+const MODEL = "gemini-1.5-pro";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -52,6 +52,8 @@ IMPORTANT GUIDELINES FOR ACCURATE ALIGNMENT:
 4. The end time ("e") of each sentence must align precisely with the final spoken phoneme of the last word in that sentence.
 5. Do NOT include silences, deep breaths, gasps, or sighs that occur *between* sentences in the sentence duration. There should be a gap (where end time of sentence N is less than start time of sentence N+1) representing the duration of the silence, sigh, or gasp.
 6. Return timestamps with 3-decimal millisecond precision (e.g. 14.325).
+7. DO NOT start a sentence late. The start time ("s") must be placed at the very first millisecond that the first syllable of the sentence begins. It is better to start slightly early (by 50-100ms) than to start late.
+8. Verify that the start time ("s") of the sentence 'Each morning she watched the humans dress...' is positioned precisely when the narrator begins speaking the word 'Each' (around 79.8 to 80.3 seconds in Chapter 1).
 
 Here is the exact list of sentences spoken, in sequential order:
 ${sentences.map((s, idx) => `${idx + 1}. "${s}"`).join("\n")}
