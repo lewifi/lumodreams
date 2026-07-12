@@ -37,7 +37,7 @@ const OUT_DIR = join(__dirname, "..", "public", "audio");
 
 // ---- Config (tweak to taste) --------------------------------------------
 const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = process.env.GEMINI_TTS_MODEL || "gemini-2.5-flash-preview-tts";
+const MODEL = process.env.GEMINI_TTS_MODEL || "gemini-3.1-flash-tts";
 // Soft/whimsical female prebuilt voices worth trying:
 //   Leda (youthful) · Achernar (soft) · Aoede (breezy) · Vindemiatrix (gentle) · Sulafat (warm)
 const VOICE = process.env.GEMINI_TTS_VOICE || "Leda";
@@ -221,7 +221,8 @@ async function synthParagraph(chapter, para, attempt = 1) {
 
 // Distribute word timings across [t0, t0+dur] for one paragraph.
 function paragraphTimings(text, t0, dur) {
-  const toks = text.split(/\s+/).filter(Boolean);
+  const cleanText = text.replace(/\[.*?\]/g, "");
+  const toks = cleanText.split(/\s+/).filter(Boolean);
   const weights = toks.map(tokenWeight);
   const total = weights.reduce((a, b) => a + b, 0) || 1;
   const words = [];
