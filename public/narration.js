@@ -132,6 +132,10 @@
     buildToggle();
     observeSections();
     audio.addEventListener("ended", onEnded);
+    // Drive highlighting from the media clock, not rAF — this stays in sync when
+    // the tab is backgrounded or the window is unfocused (rAF throttles/stops),
+    // and it automatically pauses/resumes with the audio.
+    audio.addEventListener("timeupdate", updateHighlight);
     let wasPlayingBeforeHide = false;
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
@@ -414,7 +418,6 @@
       words: tracks[0].words,
       idx: -1,
       morphAt,
-      raf: 0,
     };
 
     loadingId = null;
@@ -448,10 +451,10 @@
       stop();
       return; // autoplay blocked
     }
-    tick();
+    updateHighlight(); // highlight the first sentence; timeupdate drives the rest
   }
 
-  function tick() {
+  function updateHighlight() {
     if (!playing) return;
     const { words, spans, trackIdx, tracks } = playing;
     const currentTrack = tracks[trackIdx];
@@ -486,7 +489,6 @@
       }
       playing.idx = maxI;
     }
-    playing.raf = requestAnimationFrame(tick);
   }
 
   function onEnded() {
@@ -523,7 +525,6 @@
   }
 
   function stop() {
-    if (playing && playing.raf) cancelAnimationFrame(playing.raf);
     audio.pause();
     playing = null;
   }
