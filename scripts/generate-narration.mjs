@@ -169,7 +169,8 @@ function parseQuota(bodyText) {
 }
 
 async function synthParagraph(chapter, para, attempt = 1) {
-  const promptText = `${stylePrompt(chapter, para)}\n\n${para.text}`;
+  const ttsText = para.text.replace(/\bLewi\b/g, "Levy");
+  const promptText = `${stylePrompt(chapter, para)}\n\n${ttsText}`;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
   const body = {
     contents: [{ parts: [{ text: promptText }] }],

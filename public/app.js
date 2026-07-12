@@ -182,7 +182,7 @@
   }
 
   function wordify(root) {
-    const targets = Array.from(root.querySelectorAll(".chapter:not(.cover):not(.theend), .modal"));
+    const targets = Array.from(root.querySelectorAll(".chapter:not(.cover), .modal"));
     targets.forEach((container) => {
       const elements = [];
       const eyebrow = container.querySelector(".eyebrow");
@@ -190,6 +190,8 @@
       const h2 = container.querySelector("h2");
       if (h2) elements.push(h2);
       container.querySelectorAll(".prose p").forEach((p) => elements.push(p));
+      const endTitle = container.querySelector(".theend-title");
+      if (endTitle) elements.push(endTitle);
       
       elements.forEach((el) => {
         if (el.dataset.wordified) return;

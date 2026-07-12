@@ -276,5 +276,17 @@ export const chapters = [
         expression: "hushed and slow, a gentle final blessing with space between each line"
       }
     ]
+  },
+  {
+    id: "theend",
+    title: "The End",
+    mood: "a gentle, final closing note",
+    paragraphs: [
+      {
+        text: "[warmly] The End",
+        mood: "gentle, final closing note",
+        expression: "tender and warm statement of conclusion; slow, clear delivery"
+      }
+    ]
   }
 ];
