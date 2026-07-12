@@ -86,14 +86,14 @@ body {
 
 .cover-art {
   /* default backdrop = title-free "back" art (used by the preface modal) */
-  background-image: url("interactive-back.png");
+  background-image: url("interactive-back.jpg");
   background-size: cover;
   background-position: center;
 }
 /* cover screen carries the version with the title baked in */
-.cover .cover-art { background-image: url("interactive-cover.png"); }
+.cover .cover-art { background-image: url("interactive-cover.jpg"); }
 /* "The End" reuses the title-free back art (empty sky for the words) */
-.theend .cover-art { background-image: url("interactive-back.png"); }
+.theend .cover-art { background-image: url("interactive-back.jpg"); }
 /* Preface: reuse cover but drift/zoom subtly so it reads as a living aurora */
 .static-aurora { animation: driftAurora 40s ease-in-out infinite alternate; }
 @keyframes driftAurora {
