@@ -1,7 +1,7 @@
 {
   // Lumo Dreams — static-assets-only Worker.
   // No `main`/`binding`: there is no Worker script, just files served from ./public.
-  "name": "lumo-dreams",
+  "name": "lumodreams",
   "compatibility_date": "2026-07-12",
   "assets": {
     "directory": "./public"
