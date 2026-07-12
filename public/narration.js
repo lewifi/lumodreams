@@ -31,12 +31,11 @@
   audio.preload = "auto";
 
   /* ---------- Background Music ---------- */
-  // Melodic music only bookends the story: lumo1 for the title + chapter 1, then
-  // it fades to the Nordic ambience bed through the middle, and lumo6 returns for
-  // the epilogue. Sections with no entry here run on ambience alone.
+  // Melodic music only bookends the story: lumo1 for the title, then a long
+  // gradual fade to the Nordic ambience bed once chapter 1 begins, and lumo6
+  // returns for the epilogue. Sections with no entry here run on ambience alone.
   const MUSIC_MAP = {
     "cover": "music/lumo1.mp3",
-    "ch1": "music/lumo1.mp3",
     "epilogue-ch": "music/lumo6.mp3"
   };
 
@@ -54,8 +53,9 @@
   let currentMusicUrl = null;
   let musicFadeInterval = null;
 
-  const MUSIC_VOL = 0.15;         // melody level
+  const MUSIC_VOL = 0.05;         // melody level
   const MUSIC_LOWPASS_HZ = 1200;  // roll off highs so the music is warm/soft and sits back
+  const MUSIC_FADEOUT_MS = 12000; // long gradual fade as chapter 1 begins
 
   // Route the two music elements through a shared low-pass filter (Web Audio).
   // Must be created after a user gesture (enable), and only once per element.
@@ -115,28 +115,29 @@
     }, intervalTime);
   }
 
-  function fadeOutMusic() {
+  function fadeOutMusic(duration = MUSIC_FADEOUT_MS) {
     currentMusicUrl = null;
-    let steps = 20;
-    const duration = 1500; // 1.5 seconds fade out
-    const intervalTime = duration / steps;
-    
     if (musicFadeInterval) clearInterval(musicFadeInterval);
-    
+    const startA = musicA.volume;
+    const startB = musicB.volume;
+    if (startA <= 0 && startB <= 0) { musicA.pause(); musicB.pause(); return; }
+
+    const steps = Math.max(1, Math.round(duration / 100)); // ~100 ms per step
+    let step = 0;
     musicFadeInterval = setInterval(() => {
-      steps--;
-      
-      musicA.volume = Math.max(0, musicA.volume - 0.015);
-      musicB.volume = Math.max(0, musicB.volume - 0.015);
-      
-      if (steps <= 0) {
+      step++;
+      const k = Math.max(0, 1 - step / steps); // linear ramp to 0
+      musicA.volume = startA * k;
+      musicB.volume = startB * k;
+      if (step >= steps) {
         clearInterval(musicFadeInterval);
+        musicFadeInterval = null;
         musicA.pause();
         musicB.pause();
         musicA.volume = 0;
         musicB.volume = 0;
       }
-    }, intervalTime);
+    }, 100);
   }
 
   /* ---------- Nordic ambience bed (plays under everything) ---------- */
