@@ -108,6 +108,14 @@ body {
   background: var(--scrim);
   pointer-events: none;
 }
+
+/* decorative snow/stars on the cover screens (added by snow.js, desktop only) */
+.snow-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
 .scrim-strong {
   --scrim: linear-gradient(180deg,
             rgba(6,10,22,0.55) 0%,
