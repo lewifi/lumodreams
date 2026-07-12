@@ -54,7 +54,7 @@
   let currentMusicUrl = null;
   let musicFadeInterval = null;
 
-  const MUSIC_VOL = 0.3;          // melody level
+  const MUSIC_VOL = 0.12;         // melody level
   const MUSIC_HIGHPASS_HZ = 300;  // thin the music so it sits over voice + ambience
 
   // Route the two music elements through a shared high-pass filter (Web Audio).
