@@ -268,6 +268,10 @@
   let isMusicMuted = false;
 
   function buildToggle() {
+    const scrim = document.createElement("div");
+    scrim.className = "narrate-scrim";
+    document.body.appendChild(scrim);
+
     panelContainer = document.createElement("div");
     panelContainer.className = "narrate-panel is-intro"; // starts as a big centred pill
 

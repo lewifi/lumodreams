@@ -202,17 +202,36 @@ body {
   text-shadow: 0 0 16px rgba(242, 200, 121, 0.55), 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
-/* "Read to me" control panel — equal bottom/right padding at rest */
+/* "Read to me" control panel — centered at the bottom of the screen */
 .narrate-panel {
   position: fixed;
-  right: max(1.25rem, env(safe-area-inset-right));
+  left: 50%;
+  transform: translateX(-50%);
   bottom: max(1.25rem, env(safe-area-inset-bottom));
   z-index: 40;
   display: flex;
   align-items: center;
-  /* flight from the intro spot (transform set in JS) to the resting corner */
+  justify-content: center;
+  /* flight from the intro spot (transform set in JS) to the bottom-center spot */
   transition: transform 760ms cubic-bezier(0.2, 0.7, 0.2, 1);
   will-change: transform;
+}
+
+/* Black to 0% gradient behind the control pill */
+.narrate-scrim {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 120px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0) 100%);
+  z-index: 39;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+body.narrating .narrate-scrim {
+  opacity: 1;
 }
 /* Intro: a large pill centred over the cover, before narration starts */
 .narrate-panel.is-intro { animation: narrate-intro-in 600ms ease both; }
