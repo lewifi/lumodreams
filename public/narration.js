@@ -26,6 +26,7 @@
   let currentVisible = null;   // most-visible narratable section id
   let suppressObserverUntil = 0; // ignore observer switches during programmatic scroll
   const timingCache = new Map();
+  let epilogueFaded = false;
 
   const audio = new Audio();
   audio.preload = "auto";
@@ -429,7 +430,14 @@
     const isVoicePlaying = enabled && !isPaused && !isMusicMuted && !document.hidden;
     
     document.querySelectorAll(".chapter").forEach((section) => {
-      const targetVol = (section.id === activeSectionId && isVoicePlaying) ? VIDEO_SFX_VOL : 0;
+      let targetVol = 0;
+      if (section.id === activeSectionId && isVoicePlaying) {
+        if (section.id === "epilogue-ch" && epilogueFaded) {
+          targetVol = 0;
+        } else {
+          targetVol = VIDEO_SFX_VOL;
+        }
+      }
       fadeVideoVolume(section, targetVol, fadeDuration);
     });
   }
@@ -692,7 +700,19 @@
     loadingId = null;
     playTrack(0);
     updateMusic(id);
-    updateVideoMuteState();
+    
+    if (id === "epilogue-ch") {
+      epilogueFaded = false;
+      fadeVideoVolume(section, VIDEO_SFX_VOL, 1000);
+      setTimeout(() => {
+        if (currentVisible === "epilogue-ch" && enabled && !isPaused) {
+          fadeVideoVolume(section, 0, 15000);
+          epilogueFaded = true;
+        }
+      }, 1500);
+    } else {
+      syncVideoVolumes();
+    }
   }
 
   async function playTrack(idx) {
