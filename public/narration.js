@@ -29,6 +29,92 @@
   const audio = new Audio();
   audio.preload = "auto";
 
+  /* ---------- Background Music ---------- */
+  const MUSIC_MAP = {
+    "cover": "music/lumo1.mp3",
+    "ch1": "music/lumo1.mp3",
+    "ch2": "music/lumo2.mp3",
+    "ch3": "music/lumo3.mp3",
+    "ch4": "music/lumo4.mp3",
+    "ch5": "music/lumo5.mp3",
+    "epilogue-ch": "music/lumo6.mp3"
+  };
+
+  const musicA = new Audio();
+  const musicB = new Audio();
+  musicA.loop = true;
+  musicB.loop = true;
+  musicA.volume = 0;
+  musicB.volume = 0;
+  musicA.preload = "auto";
+  musicB.preload = "auto";
+
+  let activeMusic = musicA;
+  let inactiveMusic = musicB;
+  let currentMusicUrl = null;
+  let musicFadeInterval = null;
+
+  function playMusic(url) {
+    if (!enabled) return;
+    if (currentMusicUrl === url) return; // Keep playing and looping seamlessly
+    
+    currentMusicUrl = url;
+    
+    const prevActive = activeMusic;
+    activeMusic = inactiveMusic;
+    inactiveMusic = prevActive;
+    
+    activeMusic.src = url;
+    activeMusic.currentTime = 0;
+    
+    activeMusic.play().catch(() => {});
+    
+    let steps = 20;
+    const duration = 2000; // 2 seconds cross-fade
+    const intervalTime = duration / steps;
+    const targetVolume = 0.3; // 30% volume
+    
+    if (musicFadeInterval) clearInterval(musicFadeInterval);
+    
+    musicFadeInterval = setInterval(() => {
+      steps--;
+      
+      activeMusic.volume = Math.min(targetVolume, activeMusic.volume + (targetVolume / 20));
+      inactiveMusic.volume = Math.max(0, inactiveMusic.volume - (targetVolume / 20));
+      
+      if (steps <= 0) {
+        clearInterval(musicFadeInterval);
+        inactiveMusic.pause();
+        inactiveMusic.volume = 0;
+        activeMusic.volume = targetVolume;
+      }
+    }, intervalTime);
+  }
+
+  function fadeOutMusic() {
+    currentMusicUrl = null;
+    let steps = 20;
+    const duration = 1500; // 1.5 seconds fade out
+    const intervalTime = duration / steps;
+    
+    if (musicFadeInterval) clearInterval(musicFadeInterval);
+    
+    musicFadeInterval = setInterval(() => {
+      steps--;
+      
+      musicA.volume = Math.max(0, musicA.volume - 0.015);
+      musicB.volume = Math.max(0, musicB.volume - 0.015);
+      
+      if (steps <= 0) {
+        clearInterval(musicFadeInterval);
+        musicA.pause();
+        musicB.pause();
+        musicA.volume = 0;
+        musicB.volume = 0;
+      }
+    }, intervalTime);
+  }
+
   init();
 
   async function init() {
@@ -107,6 +193,9 @@
     const target = getActiveSection() || manifest[0];
     currentVisible = target;
     playSection(target);
+    if (MUSIC_MAP[target]) {
+      playMusic(MUSIC_MAP[target]);
+    }
   }
 
   function disable() {
@@ -115,6 +204,7 @@
     setToggleLabel();
     stop();
     clearHighlights();
+    fadeOutMusic();
   }
 
   /* ---------- Which chapter is in view ---------- */
@@ -132,6 +222,9 @@
           currentVisible = best;
           if (enabled && (!playing || playing.id !== best) && loadingId !== best) {
             playSection(best);
+            if (MUSIC_MAP[best]) {
+              playMusic(MUSIC_MAP[best]);
+            }
           }
         }
       },
@@ -224,6 +317,9 @@
 
     loadingId = null;
     playTrack(0);
+    if (enabled && MUSIC_MAP[id]) {
+      playMusic(MUSIC_MAP[id]);
+    }
   }
 
   async function playTrack(idx) {
