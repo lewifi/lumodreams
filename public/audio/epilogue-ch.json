@@ -5,73 +5,73 @@
   "words": [
     {
       "w": "Spring returned slowly.",
-      "s": 0,
-      "e": 2.251
+      "s": 0.015,
+      "e": 2.138
     },
     {
       "w": "Snow slid from rooftops, rivers began to run again, and the scent of pine and birch filled the warming air.",
-      "s": 3.018,
-      "e": 12.908
+      "s": 3.035,
+      "e": 13.564
     },
     {
       "w": "The fields turned green.",
-      "s": 14.198,
-      "e": 16.298
+      "s": 14.532,
+      "e": 16.32
     },
     {
       "w": "Soon the midnight sun rose and the world glowed with gentle, endless daylight.",
-      "s": 17.068,
-      "e": 24.388
+      "s": 16.89,
+      "e": 24.132
     },
     {
       "w": "The cows were taken to pasture, and Lumo ran across the fields with the girls at her heels.",
-      "s": 25.048,
-      "e": 33.398
+      "s": 25.04,
+      "e": 33.626
     },
     {
       "w": "She no longer stood on two legs or squeezed into their clothes.",
-      "s": 34.028,
-      "e": 39.848
+      "s": 34.335,
+      "e": 39.811
     },
     {
       "w": "She was simply herself, joyous and full of life.",
-      "s": 40.238,
-      "e": 45.458
+      "s": 40.405,
+      "e": 45.471
     },
     {
       "w": "In the evenings, the family often told the story of the night Lumo wandered into the cold but found her way home.",
-      "s": 46.218,
-      "e": 56.458
+      "s": 46.22,
+      "e": 57.067
     },
     {
       "w": "The youngest girl always ended the tale by wrapping her arms around Lumo and whispering,  You are the best dog in the world.",
-      "s": 57.658,
-      "e": 70.368
+      "s": 57.653,
+      "e": 70.054
     },
     {
       "w": "Lumo did not need to understand the words.",
-      "s": 70.838,
-      "e": 74.888
+      "s": 71.12,
+      "e": 75.14
     },
     {
       "w": "She felt them in every quiet moment, in every warm touch, and  in the love that embraced her like home.",
-      "s": 75.488,
-      "e": 87.268
+      "s": 75.8,
+      "e": 87.3
     },
     {
       "w": "She was home.",
-      "s": 87.898,
-      "e": 89.658
+      "s": 88.02,
+      "e": 90.01
     },
     {
       "w": "She was loved.",
-      "s": 90.968,
-      "e": 92.748
+      "s": 90.9,
+      "e": 93.56
     },
     {
       "w": "And she was exactly what she was meant to be.",
-      "s": 93.908,
-      "e": 98.668
+      "s": 94.19,
+      "e": 98.8
     }
   ]
 }
