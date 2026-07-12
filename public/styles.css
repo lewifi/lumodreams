@@ -1,0 +1,293 @@
+/* ============================================================
+   Lumo Dreams — v1 styles
+   Arctic / aurora / dreamy: deep blues, violet-green aurora accents,
+   candle-gold title. Video behind full-bleed text with a tunable scrim.
+   ============================================================ */
+
+:root {
+  /* palette */
+  --night:        #060a16;
+  --night-2:      #0b1326;
+  --aurora-green: #6ff2c0;
+  --aurora-violet:#b48bff;
+  --ice:          #cfe6ff;
+  --candle-gold:  #f2c879;
+  --white:        #f6f9ff;
+
+  /* per-chapter text legibility (overridable per section) */
+  --ink: var(--white);
+  /* drop-shadow for white text */
+  --halo: 0 2px 14px rgba(0,0,0,0.75), 0 1px 3px rgba(0,0,0,0.9);
+  /* scrim gradient over the video */
+  --scrim: linear-gradient(180deg,
+            rgba(6,10,22,0.35) 0%,
+            rgba(6,10,22,0.55) 45%,
+            rgba(6,10,22,0.78) 100%);
+
+  --font-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-sans:  "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+  --content-max: 42rem;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- Scroll container: one chapter per viewport ---------- */
+#story {
+  height: 100dvh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+}
+
+.chapter {
+  position: relative;
+  min-height: 100dvh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: max(4vh, 2rem) 1.5rem;
+}
+
+/* ---------- Background layers ---------- */
+.chapter video.bg,
+.cover-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.cover-art {
+  background-image: url("cover-and-back.png");
+  background-size: cover;
+  background-position: center;
+}
+/* Preface: reuse cover but drift/zoom subtly so it reads as a living aurora */
+.static-aurora { animation: driftAurora 40s ease-in-out infinite alternate; }
+@keyframes driftAurora {
+  from { transform: scale(1.02) translate3d(0,0,0); }
+  to   { transform: scale(1.12) translate3d(-2%, -1%, 0); }
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--scrim);
+  pointer-events: none;
+}
+.scrim-strong {
+  --scrim: linear-gradient(180deg,
+            rgba(6,10,22,0.55) 0%,
+            rgba(6,10,22,0.7) 45%,
+            rgba(6,10,22,0.88) 100%);
+}
+/* "The End": darken the empty left sky so the words read there */
+.scrim-left {
+  background:
+    linear-gradient(90deg, rgba(6,10,22,0.72) 0%, rgba(6,10,22,0.35) 42%, rgba(6,10,22,0) 68%),
+    linear-gradient(180deg, rgba(6,10,22,0.25) 0%, rgba(6,10,22,0.45) 100%);
+}
+
+/* ---------- Text block ---------- */
+.content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--content-max);
+  color: var(--ink);
+  text-shadow: var(--halo);
+}
+.content.narrow { max-width: 40rem; }
+
+.eyebrow {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--candle-gold);
+  margin: 0 0 0.6rem;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.8);
+}
+
+.content h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: clamp(2.1rem, 6vw, 3.4rem);
+  line-height: 1.05;
+  margin: 0 0 1.1rem;
+  letter-spacing: 0.5px;
+}
+
+.prose p {
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 2.5vw, 1.5rem);
+  line-height: 1.62;
+  margin: 0 0 1rem;
+  max-width: 38rem;
+}
+.prose p:last-child { margin-bottom: 0; }
+.prose em { font-style: italic; color: var(--ice); }
+.coda {
+  margin-top: 1.4rem !important;
+  color: var(--candle-gold);
+  font-size: clamp(1.25rem, 3vw, 1.7rem);
+  line-height: 1.5;
+}
+
+/* v2 hook: word-level highlighting target (see app.js wordify) */
+.word { transition: color 120ms ease, text-shadow 120ms ease; }
+.word.is-spoken { color: var(--candle-gold); }
+
+/* ---------- Cover ---------- */
+.cover .scrim {
+  background: linear-gradient(180deg,
+    rgba(6,10,22,0) 0%,
+    rgba(6,10,22,0.15) 55%,
+    rgba(6,10,22,0.85) 100%);
+}
+.cover-content {
+  align-self: flex-end;
+  text-align: center;
+  padding-bottom: 3vh;
+}
+.byline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+  color: var(--ice);
+  margin: 0 0 1.4rem;
+}
+.cover-actions {
+  display: flex;
+  gap: 0.9rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ---------- The End ---------- */
+.theend-content {
+  align-self: center;
+  margin-right: auto;      /* pull words into the empty left sky */
+  text-align: left;
+  max-width: 26rem;
+}
+.theend-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.6rem, 9vw, 5rem);
+  font-weight: 500;
+  color: var(--candle-gold);
+  margin: 0 0 1.4rem;
+  letter-spacing: 1px;
+  text-shadow: 0 3px 24px rgba(0,0,0,0.8), 0 0 40px rgba(242,200,121,0.25);
+}
+.theend-actions { display: flex; flex-direction: column; gap: 0.7rem; align-items: flex-start; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: transform 120ms ease, background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  text-shadow: none;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: var(--candle-gold);
+  color: #2a1c05;
+  box-shadow: 0 6px 24px rgba(242,200,121,0.28);
+}
+.btn-primary:hover { background: #ffd98a; box-shadow: 0 8px 30px rgba(242,200,121,0.4); }
+.btn-ghost {
+  background: rgba(255,255,255,0.08);
+  color: var(--white);
+  border-color: rgba(255,255,255,0.35);
+  backdrop-filter: blur(6px);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.6); }
+
+.scroll-hint {
+  display: block;
+  margin-top: 1.6rem;
+  font-size: 1.6rem;
+  color: var(--white);
+  text-decoration: none;
+  opacity: 0.85;
+  animation: bob 2.2s ease-in-out infinite;
+}
+@keyframes bob { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(8px);} }
+
+/* ---------- Epilogue modal ---------- */
+.modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+.modal[hidden] { display: none; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(3,6,14,0.72); backdrop-filter: blur(4px); }
+.modal-card {
+  position: relative;
+  width: min(46rem, 100%);
+  max-height: 88dvh;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  animation: rise 240ms cubic-bezier(.2,.7,.2,1);
+}
+@keyframes rise { from { opacity: 0; transform: translateY(18px) scale(.98);} to { opacity:1; transform:none;} }
+.modal-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.modal-scrim { position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(6,10,22,0.55), rgba(6,10,22,0.82)); }
+.modal-body {
+  position: relative; z-index: 2;
+  padding: clamp(1.6rem, 4vw, 2.6rem);
+  overflow-y: auto;
+  max-height: 88dvh;
+  color: var(--white);
+  text-shadow: var(--halo);
+}
+.modal-body h2 { font-family: var(--font-serif); font-weight: 600; font-size: clamp(1.8rem,5vw,2.6rem); margin: 0 0 1rem; }
+.modal-close {
+  position: absolute; top: 0.6rem; right: 0.8rem; z-index: 3;
+  width: 2.4rem; height: 2.4rem; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.35); color: var(--white);
+  font-size: 1.4rem; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { background: rgba(0,0,0,0.55); }
+
+body.modal-open { overflow: hidden; }
+
+/* ---------- Motion / a11y ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #story { scroll-behavior: auto; }
+  .static-aurora, .scroll-hint, .modal-card { animation: none; }
+}
+
+@media (max-width: 480px) {
+  .chapter { padding: max(3vh, 1.25rem) 1.15rem; }
+  .prose p { font-size: 1.18rem; }
+}

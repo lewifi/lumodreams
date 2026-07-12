@@ -1,0 +1,165 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Lumo Dreams of Being a Real Human</title>
+<meta name="description" content="An interactive telling of “Lumo Dreams of Being a Real Human” by Lewi Hirvelä — an Australian Shepherd puppy under the Arctic aurora." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" />
+<link rel="stylesheet" href="styles.css" />
+
+<!--
+  Lumo Dreams — interactive story, v1.
+  Structure: one <section class="chapter"> per full-viewport screen, scroll-snapped.
+  Each chapter carries a looping muted video behind a scrim; text sits on top.
+
+  Per-chapter text legibility is tuned with CSS custom properties set inline on
+  the section (see styles.css :root defaults):
+    --scrim   : gradient/overlay strength over the video
+    --ink     : text colour
+    --halo    : text-shadow (drop-shadow for white text, glow for coloured text)
+
+  v2 (NOT built yet — see CLAUDE.md): pre-recorded Gemini narration per chapter,
+  word-by-word karaoke highlighting, and audio-synced auto-scroll. Paragraph text
+  is kept in a clean <p> model so app.js can wrap words in spans without a rewrite.
+-->
+
+<main id="story">
+
+  <!-- ===== COVER ===== -->
+  <section class="chapter cover" id="cover" data-chapter="cover" aria-label="Cover">
+    <div class="cover-art" role="img" aria-label="Aurora over the Arctic — Lumo Dreams of Being a Real Human"></div>
+    <div class="scrim"></div>
+    <div class="content cover-content">
+      <p class="byline">A story by Lewi Hirvelä</p>
+      <div class="cover-actions">
+        <a class="btn btn-primary" href="#preface">Begin the story</a>
+        <button class="btn btn-ghost" type="button" data-open-epilogue>Read the epilogue</button>
+      </div>
+      <a class="scroll-hint" href="#preface" aria-hidden="true">↓</a>
+    </div>
+  </section>
+
+  <!-- ===== PREFACE (no video — aurora/cover backdrop) ===== -->
+  <section class="chapter preface" id="preface" data-chapter="0" aria-label="Preface">
+    <div class="cover-art static-aurora"></div>
+    <div class="scrim scrim-strong"></div>
+    <div class="content narrow">
+      <p class="eyebrow">Preface</p>
+      <h2>Dreams of Being a Real Human</h2>
+      <div class="prose">
+        <p><em>A story inspired by the Nordic Lapland, Hong Kong and Australia, in three dogs and one human heart, with love from Lumi the Border Collie, Susi the Husky, Molly the Cavoodle, and me.</em></p>
+        <p>I lived for seven months in my father’s home town of Ivalo in Finnish Lapland and three more years elsewhere in Finland. Winter there can be fierce, with temperatures falling to forty below zero. The air bites at your lungs, the land lies buried beneath deep snow, and the polar nights wrap the world in a long, blue darkness. Yet the sky can surprise you with extraordinary beauty. Sometimes the aurora ripples in green and violet, dancing like ribbons against the night.</p>
+        <p>My father grew up as a reindeer herder. He skied through the forests and fells for hundreds of kilometres, relying on instinct to navigate the endless whiteness. From him I learned how people and animals survive in such a place, and how they thrive too.</p>
+        <p>I have lived with six dogs, border collies and huskies, and now a cavoodle, each one with its own voice and spirit. They taught me about loyalty, curiosity, and love without a single word spoken. This story of Lumo, an Australian Shepherd puppy who longed to be human, is rooted in those experiences. The events are imagined, but the feelings belong to the Arctic I came to know.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 1 · A PUPPY'S WORLD ===== -->
+  <section class="chapter" id="ch1" data-chapter="1" data-video="videos/a-puppys-world.mp4" aria-label="Chapter one: A Puppy’s World">
+    <div class="scrim"></div>
+    <div class="content">
+      <p class="eyebrow">Chapter One</p>
+      <h2>A Puppy’s World</h2>
+      <div class="prose">
+        <p>Lumo was a six-month-old Australian Shepherd puppy who lived on a small farm outside a quiet arctic town. The farm was home to cows rather than sheep, which an Aussie would usually herd instead, though she did not mind. The cows smelled warm and friendly, and the fields were full of flowers and scents she had not yet explored. In summer, cloudberries glowed like tiny amber lanterns across the bushes, though she was not allowed to eat them.</p>
+        <p>The family who cared for her consisted of a hardworking father, a kind mother, and two lively daughters aged four and seven. The girls adored Lumo and often napped with her curled between them. She adored them just as much, though her curiosity and tendency to be mischievous often tempted her to wriggle through small gaps in the fence to explore the surrounding fields. But she always returned. She loved the girls too deeply to stay away for long.</p>
+        <p>Each morning she watched the humans dress in warm clothes, share breakfast, and begin their day. Lumo ate her dry food, sometimes with a tin of wet food mixed in. Unofficially, the girls slipped her scraps of rye bread, cheese, cold meats, or a bit of boiled egg. She could smell egg from the other side of the house and zoomed towards it every time.</p>
+        <p>As the season edged towards winter and the cold grew sharper, Lumo watched the girls wrap themselves in woollen layers. Woven dog coats were uncommon in the region and the parents believed Lumo’s thick fur was enough. Lumo was not so sure. She wondered why she could not wear warm clothes too. Perhaps humans were simply allowed more comforts. Perhaps, she thought, she ought to become one herself.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 2 · THE DREAM OF BEING HUMAN ===== -->
+  <section class="chapter" id="ch2" data-chapter="2" data-video="videos/the-dream-of-being-human.mp4" aria-label="Chapter two: The Dream of Being Human">
+    <div class="scrim"></div>
+    <div class="content">
+      <p class="eyebrow">Chapter Two</p>
+      <h2>The Dream of Being Human</h2>
+      <div class="prose">
+        <p>Lumo began practising. She tried standing on her hind legs, wobbling proudly like a little dancer. She jumped so high that her nose nearly met the father’s face to impress him. She attempted human sounds too, producing half-barks and curious noises as if mimicking speech.</p>
+        <p>One day the youngest girl tripped and scraped her knee. She cried with great sorrow. Lumo wanted desperately to make it better. She sniffed around the room for something helpful and found the girl’s treasured blanket tucked inside a drawer. She tugged it free with bright hope. Instead, the fabric tore. The girl burst into tears again and Lumo sat down in confusion, her ears drooping. She had only wanted to help.</p>
+        <p>That night she lay by the fire and dreamed of walking on two legs, wearing mittens and boots, and being able to speak in comforting words. She dreamed of belonging in the warm, clever world of humans.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 3 · TRIALS AND FRUSTRATIONS ===== -->
+  <section class="chapter" id="ch3" data-chapter="3" data-video="videos/trials-and-frustrations.mp4" aria-label="Chapter three: Trials and Frustrations">
+    <div class="scrim"></div>
+    <div class="content">
+      <p class="eyebrow">Chapter Three</p>
+      <h2>Trials and Frustrations</h2>
+      <div class="prose">
+        <p>As the cold deepened and the polar nights crept in, stretching across the days with bluish twilight during the day and darkness at night, Lumo tried harder than ever to be human. She climbed onto tables searching for snacks and was scolded for it. She squeezed herself into the girls’ clothes, tumbling over in sleeves that tangled around her paws. She jumped on chairs and sat at the dinner table as politely as she could, but was told to get down.</p>
+        <p>The family grew tired of the mischievous puppy. The youngest girl was still upset about her torn blanket, which made Lumo’s heart ache. She felt she belonged nowhere. Too clumsy to be human, too restless to be an ordinary dog.</p>
+        <p>One particularly cold night, feeling confused and left out, she slipped through a gap in the fence and wandered into the darkness. Snow drifted down gently, softening the world into a quiet dream. The land around her was one of the most remote places in the world, wide and silent beneath the long polar night.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 4 · THE TURNING POINT ===== -->
+  <section class="chapter" id="ch4" data-chapter="4" data-video="videos/the-turning-point.mp4" aria-label="Chapter four: The Turning Point">
+    <div class="scrim"></div>
+    <div class="content">
+      <p class="eyebrow">Chapter Four</p>
+      <h2>The Turning Point</h2>
+      <div class="prose">
+        <p>Lumo wandered for hours. The snow lay deep beneath her paws and each laboured breath stung in the icy air. The wind rustled through the trees like a distant whisper. Her strength soon faded and she curled beneath a pine tree, nose tucked beneath her tail. Her thick coat helped, but she was not warm.</p>
+        <p>When she woke again, the sky had transformed. Above her, the aurora rippled in waves of green and violet. It shimmered across the heavens as though the night itself had woken to watch over her. Wonder warmed her more than the fur on her back. She felt a small but brave return.</p>
+        <p>Step by slow step, guided by instinct and memory, she began to make her way home. When she reached the house it was empty. The family were out searching for her, calling her name across the fields. Lumo couldn’t hear them so she turned instead to the barn. Inside, the cows lay resting, warm bodies steaming in the cold. She nestled between them, comforted by their calm breathing, and fell asleep.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 5 · THE REALISATION ===== -->
+  <section class="chapter" id="ch5" data-chapter="5" data-video="videos/the-realisation.mp4" aria-label="Chapter five: The Realisation">
+    <div class="scrim"></div>
+    <div class="content">
+      <p class="eyebrow">Chapter Five</p>
+      <h2>The Realisation</h2>
+      <div class="prose">
+        <p>The family found her just after dawn. They gathered around her with relief and love. The father carried her back to the house, the mother wrapped her in a blanket, and the youngest girl hugged her so tightly that Lumo let out a tired but contented sigh.</p>
+        <p>In that moment she understood that she had always belonged. She did not need boots or mittens or the power of speech. She was loved for exactly what she was.</p>
+        <p>In the days that followed, the family fed her warm broth and little pieces of cooked meat. She rested by the fire and watched the windows frost with delicate snowflake patterns. She no longer felt the desire to become something else.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== THE END ===== -->
+  <section class="chapter theend" id="theend" data-chapter="end" aria-label="The End">
+    <div class="cover-art"></div>
+    <div class="scrim scrim-left"></div>
+    <div class="content theend-content">
+      <p class="theend-title">The End</p>
+      <div class="theend-actions">
+        <button class="btn btn-primary" type="button" data-open-epilogue>Read the epilogue</button>
+        <a class="btn btn-ghost" href="#cover">Back to the beginning</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== EPILOGUE MODAL (offered on cover and at the end; not in scroll flow) ===== -->
+<div class="modal" id="epilogue" role="dialog" aria-modal="true" aria-labelledby="epilogue-title" hidden>
+  <div class="modal-backdrop" data-close-epilogue></div>
+  <div class="modal-card" role="document">
+    <video class="modal-video" data-video="videos/epilogue.mp4" muted loop autoplay playsinline preload="none"></video>
+    <div class="modal-scrim"></div>
+    <button class="modal-close" type="button" data-close-epilogue aria-label="Close epilogue">×</button>
+    <div class="modal-body">
+      <p class="eyebrow">Epilogue</p>
+      <h2 id="epilogue-title">Spring Returns</h2>
+      <div class="prose">
+        <p>Spring returned slowly. Snow slid from rooftops, rivers began to run again, and the scent of pine and birch filled the warming air. The fields turned green. Soon the midnight sun rose and the world glowed with gentle, endless daylight.</p>
+        <p>The cows were taken to pasture, and Lumo ran across the fields with the girls at her heels. She no longer stood on two legs or squeezed into their clothes. She was simply herself, joyous and full of life.</p>
+        <p>In the evenings, the family often told the story of the night Lumo wandered into the cold but found her way home. The youngest girl always ended the tale by wrapping her arms around Lumo and whispering, <em>You are the best dog in the world.</em></p>
+        <p>Lumo did not need to understand the words. She felt them in every quiet moment, in every warm touch, and in the love that embraced her like home.</p>
+        <p class="coda">She was home.<br />She was loved.<br />And she was exactly what she was meant to be.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>

@@ -1,0 +1,14 @@
+{
+  "name": "lumo-dreams",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive telling of 'Lumo Dreams of Being a Real Human' by Lewi Hirvelä.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}

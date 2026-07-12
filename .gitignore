@@ -1,0 +1,6 @@
+node_modules/
+.wrangler/
+.claude/settings.local.json
+.dev.vars
+*.log
+.DS_Store
