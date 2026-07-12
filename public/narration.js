@@ -53,9 +53,9 @@
   let currentMusicUrl = null;
   let musicFadeInterval = null;
 
-  const MUSIC_VOL = 0.05;         // melody level
+  const MUSIC_VOL = 0.04;         // melody level
   const MUSIC_LOWPASS_HZ = 1200;  // roll off highs so the music is warm/soft and sits back
-  const MUSIC_FADEOUT_MS = 12000; // long gradual fade as chapter 1 begins
+  const MUSIC_FADEOUT_MS = 25000; // long gradual fade as chapter 1 begins
 
   // Route the two music elements through a shared low-pass filter (Web Audio).
   // Must be created after a user gesture (enable), and only once per element.
