@@ -300,18 +300,7 @@
     startBtn.type = "button";
     startBtn.className = "narrate-toggle";
     startBtn.innerHTML = '<span class="narrate-ico">▶</span> Read to me';
-    startBtn.addEventListener("click", () => {
-      if (currentVisible === "theend") {
-        // Glide back to the cover, THEN grow into the intro pill — positioning it
-        // only once the cover buttons are actually on screen (else it lands wrong).
-        scrollToSection("cover", () => {
-          panelContainer.classList.add("is-intro");
-          positionIntro();
-        });
-      } else {
-        enable();
-      }
-    });
+    startBtn.addEventListener("click", enable);
     panelContainer.appendChild(startBtn);
 
     controlsDiv = document.createElement("div");
@@ -557,6 +546,7 @@
     ensureMusicGraph(); // set up the high-pass routing (needs this user gesture)
     document.body.classList.add("narrating");
     document.body.classList.remove("narration-paused");
+    panelContainer.style.display = ""; // ensure the panel is visible (it's hidden at The End)
 
     // Swap the big intro pill for the controls, then fly the panel to the corner:
     // clearing the intro transform lets the CSS transition animate it home.
@@ -577,11 +567,24 @@
 
   function updateStartButtonLabel() {
     if (enabled) return;
-    if (currentVisible === "theend") {
-      startBtn.innerHTML = '<span class="narrate-ico">↺</span> Start again';
+    startBtn.innerHTML = '<span class="narrate-ico">▶</span> Read to me';
+  }
+
+  // Show/position the floating pill for the given section (when not narrating).
+  // At "The End" the pill is hidden — the in-page "Back to the beginning" button
+  // is the single restart affordance; the pill returns once we're back on top.
+  function refreshIntroPanel(id) {
+    if (enabled) { panelContainer.style.display = ""; return; }
+    if (id === "theend") { panelContainer.style.display = "none"; return; }
+    panelContainer.style.display = "";
+    if (id === "cover") {
+      panelContainer.classList.add("is-intro");
+      positionIntro();
     } else {
-      startBtn.innerHTML = '<span class="narrate-ico">▶</span> Read to me';
+      panelContainer.classList.remove("is-intro");
+      panelContainer.style.transform = "";
     }
+    updateStartButtonLabel();
   }
 
   function disable() {
@@ -591,7 +594,6 @@
     document.body.classList.remove("narration-paused");
 
     controlsDiv.style.display = "none";
-    updateStartButtonLabel();
     startBtn.style.display = "flex";
 
     stop();
@@ -599,6 +601,7 @@
     fadeOutMusic();
     setAmbience(0);
     syncVideoVolumes();
+    refreshIntroPanel(currentVisible); // hides the pill at "The End"
   }
 
   /* ---------- Which chapter is in view ---------- */
@@ -621,16 +624,7 @@
           if (enabled && (!playing || playing.id !== best) && loadingId !== best) {
             playSection(best); // handles music + ambience via updateMusic
           }
-          if (!enabled) {
-            if (best === "cover") {
-              panelContainer.classList.add("is-intro");
-              positionIntro();
-            } else {
-              panelContainer.classList.remove("is-intro");
-              panelContainer.style.transform = "";
-            }
-            updateStartButtonLabel();
-          }
+          if (!enabled) refreshIntroPanel(best);
         }
       },
       { threshold: [0, 0.3, 0.8] }
@@ -861,8 +855,7 @@
       scrollToSection(next);
       playSection(next);
     } else {
-      disable();
-      setToggleLabel();
+      disable(); // last section done — hides the pill (see refreshIntroPanel)
     }
   }
 
@@ -906,18 +899,20 @@
     // Mute observer-driven section switches for the duration of this scroll.
     suppressObserverUntil = performance.now() + (reduceMotion ? 200 : 1200);
     currentVisible = id; // set immediately so observer doesn't trigger on intermediate positions
-    if (!enabled) updateStartButtonLabel();
+    // Update the pill only once the scroll settles (so positionIntro measures the
+    // cover buttons in their final on-screen position, and the pill returns on top).
+    const finish = () => { refreshIntroPanel(id); if (onDone) onDone(); };
     const container = document.getElementById("story");
     if (container) {
       if (reduceMotion) {
         container.scrollTop = s.offsetTop;
-        if (onDone) onDone();
+        finish();
       } else {
-        animateScrollTo(container, s.offsetTop, 1000, { onDone, manageSnap: true });
+        animateScrollTo(container, s.offsetTop, 1000, { onDone: finish, manageSnap: true });
       }
     } else {
       s.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-      if (onDone) onDone();
+      finish();
     }
   }
 
