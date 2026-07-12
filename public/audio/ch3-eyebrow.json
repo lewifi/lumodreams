@@ -1,12 +1,1 @@
-{
-  "id": "ch3-eyebrow",
-  "voice": "Leda",
-  "duration": 1.536,
-  "words": [
-    {
-      "w": "Chapter Three",
-      "s": 0,
-      "e": 1.25
-    }
-  ]
-}
+{"id":"ch3-eyebrow","voice":"Leda","duration":1.536,"words":[{"w":"Chapter Three","s":0.02,"e":1.43}]}

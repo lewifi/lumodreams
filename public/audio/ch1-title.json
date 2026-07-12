@@ -1,12 +1,1 @@
-{
-  "id": "ch1-title",
-  "voice": "Leda",
-  "duration": 1.848,
-  "words": [
-    {
-      "w": "A Puppy’s World",
-      "s": 0,
-      "e": 1.5
-    }
-  ]
-}
+{"id":"ch1-title","voice":"Leda","duration":1.848,"words":[{"w":"A Puppy’s World","s":0,"e":1.76}]}

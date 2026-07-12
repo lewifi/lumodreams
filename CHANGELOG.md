@@ -5,11 +5,11 @@ This document details the codebase updates made to **Lumo Dreams** to support pr
 ---
 
 ## 🎙️ 1. Audio Alignment & Pronunciation Engine
-*   **Automatic timing aligner (`scripts/align-timings.mjs`):** 
-    *   Created an offline Node.js alignment script that reads narration MP3s and calls `gemini-3.1-pro-preview` with base64 audio and text.
-    *   Instructed the model with rules for phonetic alignment (3-decimal millisecond precision) and comando-mandated silence gaps.
-    *   Configured the aligner script to support target filtering via command-line arguments (e.g. `node scripts/align-timings.mjs cover theend`) to prevent rate limits and save tokens.
-    *   Equipped the script with markdown code fence stripping to safely extract raw JSON blocks from multimodal replies.
+*   **Waveform timing aligner (`scripts/align-timings.mjs`):**
+    *   *Why it changed:* the earlier approach asked `gemini-3.1-pro-preview` to read the audio and return timestamps. LLMs can't do sample-accurate forced alignment — they estimate, and drift inconsistently by a few hundred ms (the old prompt even hard-coded a manual correction for one sentence). The highlight was audibly out, first noticeably at *"…surrounding fields. But she always returned."* (a single baked MP3, so not an MP3-gap issue).
+    *   *New approach:* decode each MP3 to PCM (`mpg123-decoder`), build a 10 ms RMS energy envelope, and detect the **real speech onsets** (points where speech resumes after a pause, tagged with the pause length). Each sentence's start is then **snapped to the nearest true onset**, using the existing per-sentence times only as a prior for *which* pause is a sentence boundary (vs a comma/clause pause), preferring onsets after a longer pause. A 100 ms anticipatory lead is applied so the highlight lands just before the word.
+    *   The frontend advances the highlight on each sentence's `s`, so onset-accurate starts are exactly what matter; the result is waveform-accurate and doesn't drift.
+    *   Still supports target filtering (`node scripts/align-timings.mjs ch1 ch2`) and a `--dry` preview; run `npm run align` for all tracks.
 *   **Pronunciation steering overrides (`scripts/generate-narration.mjs`):**
     *   Configured text interceptors to phonetically substitute target names in text prompts sent to the Google TTS synthesis API:
         *   `"Lewi"` ➡️ `"Levee"`: Forces correct storyteller RP pronunciation (`"Leh-vee"`, as in *Chevy to the levee*) instead of the default `"Louie"` or `"Lee-vye"` (Levi).

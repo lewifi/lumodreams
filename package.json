@@ -7,10 +7,12 @@
     "dev": "wrangler dev",
     "start": "wrangler dev",
     "deploy": "wrangler deploy",
-    "narrate": "node scripts/generate-narration.mjs"
+    "narrate": "node scripts/generate-narration.mjs",
+    "align": "node scripts/align-timings.mjs"
   },
   "devDependencies": {
-    "wrangler": "^4"
+    "wrangler": "^4",
+    "mpg123-decoder": "^1.0.3"
   },
   "dependencies": {
     "@breezystack/lamejs": "^1.2.7"

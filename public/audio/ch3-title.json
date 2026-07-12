@@ -1,12 +1,1 @@
-{
-  "id": "ch3-title",
-  "voice": "Leda",
-  "duration": 3.792,
-  "words": [
-    {
-      "w": "Trials and Frustrations",
-      "s": 0.12,
-      "e": 3.01
-    }
-  ]
-}
+{"id":"ch3-title","voice":"Leda","duration":3.792,"words":[{"w":"Trials and Frustrations","s":0,"e":3.73}]}

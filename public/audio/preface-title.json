@@ -1,12 +1,1 @@
-{
-  "id": "preface-title",
-  "voice": "Leda",
-  "duration": 3.864,
-  "words": [
-    {
-      "w": "Dreams of Being a Real Human",
-      "s": 0,
-      "e": 2.22
-    }
-  ]
-}
+{"id":"preface-title","voice":"Leda","duration":3.864,"words":[{"w":"Dreams of Being a Real Human","s":0,"e":3.7}]}

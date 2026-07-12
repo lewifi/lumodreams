@@ -1,12 +1,1 @@
-{
-  "id": "theend",
-  "voice": "Leda",
-  "duration": 1.424,
-  "words": [
-    {
-      "w": "The End",
-      "s": 0,
-      "e": 0.85
-    }
-  ]
-}
+{"id":"theend","voice":"Leda","duration":1.424,"words":[{"w":"The End","s":0,"e":1.39}]}

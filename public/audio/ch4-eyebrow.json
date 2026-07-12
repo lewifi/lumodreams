@@ -1,12 +1,1 @@
-{
-  "id": "ch4-eyebrow",
-  "voice": "Leda",
-  "duration": 1.632,
-  "words": [
-    {
-      "w": "Chapter Four",
-      "s": 0,
-      "e": 1.5
-    }
-  ]
-}
+{"id":"ch4-eyebrow","voice":"Leda","duration":1.632,"words":[{"w":"Chapter Four","s":0,"e":1.53}]}
