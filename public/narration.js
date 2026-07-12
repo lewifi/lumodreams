@@ -569,7 +569,10 @@
     if (cue && section.dataset.videoMorph) {
       const bodyTrack = tracks.find((t) => t.suffix === "");
       if (bodyTrack) {
-        const hit = bodyTrack.words.find((w) => normWord(w.w) === normWord(cue));
+        // Since words timing uses full sentences, check if the sentence contains the cue word
+        const hit = bodyTrack.words.find((w) =>
+          w.w.toLowerCase().includes(cue.toLowerCase())
+        );
         if (hit) morphAt = hit.s;
       }
     }
