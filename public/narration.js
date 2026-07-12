@@ -31,13 +31,12 @@
   audio.preload = "auto";
 
   /* ---------- Background Music ---------- */
+  // Melodic music only bookends the story: lumo1 for the title + chapter 1, then
+  // it fades to the Nordic ambience bed through the middle, and lumo6 returns for
+  // the epilogue. Sections with no entry here run on ambience alone.
   const MUSIC_MAP = {
     "cover": "music/lumo1.mp3",
     "ch1": "music/lumo1.mp3",
-    "ch2": "music/lumo2.mp3",
-    "ch3": "music/lumo3.mp3",
-    "ch4": "music/lumo4.mp3",
-    "ch5": "music/lumo5.mp3",
     "epilogue-ch": "music/lumo6.mp3"
   };
 
@@ -116,6 +115,53 @@
     }, intervalTime);
   }
 
+  /* ---------- Nordic ambience bed (plays under everything) ---------- */
+  const ambience = new Audio();
+  ambience.loop = true;
+  ambience.preload = "auto";
+  ambience.src = "music/nordic-ambience.mp3";
+  ambience.volume = 0;
+  const AMBIENCE_UNDER_MUSIC = 0.08; // ducked while a melody plays
+  const AMBIENCE_LEAD = 0.2;         // main bed when no melody (middle chapters)
+  let ambienceTarget = 0;
+  let ambienceFade = null;
+
+  function rampAmbience() {
+    if (ambienceFade) clearInterval(ambienceFade);
+    ambienceFade = setInterval(() => {
+      const tgt = isMusicMuted ? 0 : ambienceTarget;
+      const cur = ambience.volume;
+      const step = 0.008;
+      if (Math.abs(cur - tgt) <= step) {
+        ambience.volume = tgt;
+        clearInterval(ambienceFade);
+        ambienceFade = null;
+        if (tgt === 0) ambience.pause();
+      } else {
+        ambience.volume = Math.max(0, Math.min(1, cur + (tgt > cur ? step : -step)));
+      }
+    }, 60);
+  }
+  function setAmbience(target) {
+    ambienceTarget = target;
+    if (target > 0 && ambience.paused && !isMusicMuted && !isPaused) {
+      ambience.play().catch(() => {});
+    }
+    rampAmbience();
+  }
+
+  // Set the melody (crossfade) and ambience level for a section in one place.
+  function updateMusic(id) {
+    if (!enabled) return;
+    if (MUSIC_MAP[id]) {
+      playMusic(MUSIC_MAP[id]);
+      setAmbience(AMBIENCE_UNDER_MUSIC);
+    } else {
+      fadeOutMusic();
+      setAmbience(AMBIENCE_LEAD);
+    }
+  }
+
   init();
 
   async function init() {
@@ -146,6 +192,7 @@
         if (activeMusic && !activeMusic.paused) {
           activeMusic.pause();
         }
+        if (!ambience.paused) ambience.pause();
       } else {
         if (wasPlayingBeforeHide && playing && !isPaused) {
           audio.play().catch(() => {});
@@ -153,6 +200,9 @@
         }
         if (enabled && activeMusic && activeMusic.paused && currentMusicUrl && !isMusicMuted && !isPaused) {
           activeMusic.play().catch(() => {});
+        }
+        if (enabled && ambience.paused && ambienceTarget > 0 && !isMusicMuted && !isPaused) {
+          ambience.play().catch(() => {});
         }
       }
     });
@@ -228,11 +278,13 @@
     if (isPaused) {
       audio.pause();
       if (activeMusic) activeMusic.pause();
+      ambience.pause();
       pauseBtn.innerHTML = '▶ Resume';
       pauseBtn.classList.add("is-active");
     } else {
       audio.play().catch(() => {});
       if (activeMusic && !isMusicMuted) activeMusic.play().catch(() => {});
+      if (!isMusicMuted && ambienceTarget > 0) ambience.play().catch(() => {});
       pauseBtn.innerHTML = '⏸ Pause';
       pauseBtn.classList.remove("is-active");
     }
@@ -245,6 +297,7 @@
       musicB.volume = 0;
       musicA.pause();
       musicB.pause();
+      ambience.pause();
       musicBtn.innerHTML = '🔇 Mute';
       musicBtn.classList.add("is-active");
     } else {
@@ -254,6 +307,10 @@
         if (activeMusic) {
           activeMusic.volume = 0.15;
           activeMusic.play().catch(() => {});
+        }
+        if (ambienceTarget > 0) {
+          ambience.play().catch(() => {});
+          rampAmbience();
         }
       }
     }
@@ -289,10 +346,7 @@
 
     const target = getActiveSection() || manifest[0];
     currentVisible = target;
-    playSection(target);
-    if (MUSIC_MAP[target] && !isMusicMuted) {
-      playMusic(MUSIC_MAP[target]);
-    }
+    playSection(target); // starts section audio + music/ambience (updateMusic)
   }
 
   function disable() {
@@ -306,6 +360,7 @@
     stop();
     clearHighlights();
     fadeOutMusic();
+    setAmbience(0);
   }
 
   /* ---------- Which chapter is in view ---------- */
@@ -326,10 +381,7 @@
         if (best && bestR >= 0.3 && best !== currentVisible) {
           currentVisible = best;
           if (enabled && (!playing || playing.id !== best) && loadingId !== best) {
-            playSection(best);
-            if (MUSIC_MAP[best]) {
-              playMusic(MUSIC_MAP[best]);
-            }
+            playSection(best); // handles music + ambience via updateMusic
           }
         }
       },
@@ -422,9 +474,7 @@
 
     loadingId = null;
     playTrack(0);
-    if (enabled && MUSIC_MAP[id]) {
-      playMusic(MUSIC_MAP[id]);
-    }
+    updateMusic(id);
   }
 
   async function playTrack(idx) {
