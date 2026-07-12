@@ -122,6 +122,28 @@ function wavHeader(dataLen) {
   return h;
 }
 
+// Pull RetryInfo + which quota was hit out of a 429 body.
+function parseQuota(bodyText) {
+  const out = { retryMs: null, perDay: false, quotaId: null };
+  try {
+    const details = JSON.parse(bodyText)?.error?.details || [];
+    for (const d of details) {
+      const type = d["@type"] || "";
+      if (type.includes("RetryInfo") && d.retryDelay) {
+        const m = /(\d+(?:\.\d+)?)s/.exec(d.retryDelay);
+        if (m) out.retryMs = Math.ceil(parseFloat(m[1]) * 1000);
+      }
+      if (type.includes("QuotaFailure")) {
+        for (const v of d.violations || []) {
+          out.quotaId = v.quotaId || out.quotaId;
+          if (/PerDay/i.test(v.quotaId || "")) out.perDay = true;
+        }
+      }
+    }
+  } catch {}
+  return out;
+}
+
 async function synthParagraph(chapter, para, attempt = 1) {
   const promptText = `${stylePrompt(chapter, para)}\n\n${para.text}`;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
@@ -141,8 +163,25 @@ async function synthParagraph(chapter, para, attempt = 1) {
   });
   if (!res.ok) {
     const msg = await res.text();
-    if ((res.status === 429 || res.status >= 500) && attempt <= 6) {
-      const wait = res.status === 429 ? 25000 : 1500 * attempt; // 3 RPM → back off ~25s
+    if (res.status === 429) {
+      const q = parseQuota(msg);
+      if (q.perDay) {
+        // Daily cap won't clear by waiting minutes — stop and keep progress.
+        throw new Error(
+          `DAILY QUOTA EXHAUSTED (${q.quotaId || "requests/day"}). ` +
+            "The free tier's per-day TTS limit is spent. Options: wait until it resets " +
+            "(~midnight US Pacific), enable billing on the project, or use a key from a " +
+            "different Google Cloud project. Completed chapters are already saved — re-run to continue."
+        );
+      }
+      if (attempt <= 6) {
+        const wait = q.retryMs || 25000; // honor Google's RetryInfo, else ~25s for 3 RPM
+        console.warn(`  · 429 (per-minute), retrying in ${Math.round(wait / 1000)}s (attempt ${attempt})`);
+        await sleep(wait);
+        return synthParagraph(chapter, para, attempt + 1);
+      }
+    } else if (res.status >= 500 && attempt <= 6) {
+      const wait = 1500 * attempt;
       console.warn(`  · ${res.status}, retrying in ${Math.round(wait / 1000)}s (attempt ${attempt})`);
       await sleep(wait);
       return synthParagraph(chapter, para, attempt + 1);
@@ -247,6 +286,7 @@ async function main() {
 
   const silence = silenceBuffer(SILENCE_MS);
   let done = 0;
+  let failure = null;
 
   for (const ch of chapters) {
     const has = existsSync(join(OUT_DIR, `${ch.id}.wav`));
@@ -255,12 +295,23 @@ async function main() {
       console.log(`— skip ${ch.id} (${has ? "already generated" : "not requested"})`);
       continue;
     }
-    await generateChapter(ch, silence);
-    done++;
+    try {
+      await generateChapter(ch, silence);
+      done++;
+    } catch (e) {
+      failure = e; // stop, but keep whatever finished
+      break;
+    }
   }
 
+  // Always rebuild the manifest so completed chapters are usable even after a stop.
   const manifest = await writeManifest();
-  console.log(`Done. Generated ${done} chapter(s). Manifest (read-along flow): ${manifest.join(", ") || "(none)"}.`);
+  console.log(`\nGenerated ${done} chapter(s) this run. Manifest (read-along flow): ${manifest.join(", ") || "(none)"}.`);
+  if (failure) {
+    console.error(`\nStopped: ${failure.message}`);
+    process.exit(1);
+  }
+  console.log("Done.");
 }
 
 main().catch((e) => {
