@@ -299,8 +299,16 @@
     startBtn = document.createElement("button");
     startBtn.type = "button";
     startBtn.className = "narrate-toggle";
-    startBtn.innerHTML = '<span class="narrate-ico">▶</span> Narrate it to me';
-    startBtn.addEventListener("click", enable);
+    startBtn.innerHTML = '<span class="narrate-ico">▶</span> Read to me';
+    startBtn.addEventListener("click", () => {
+      if (currentVisible === "theend") {
+        scrollToSection("cover");
+        panelContainer.classList.add("is-intro");
+        positionIntro();
+      } else {
+        enable();
+      }
+    });
     panelContainer.appendChild(startBtn);
 
     controlsDiv = document.createElement("div");
@@ -564,6 +572,15 @@
     syncVideoVolumes();
   }
 
+  function updateStartButtonLabel() {
+    if (enabled) return;
+    if (currentVisible === "theend") {
+      startBtn.innerHTML = '<span class="narrate-ico">↺</span> Start again';
+    } else {
+      startBtn.innerHTML = '<span class="narrate-ico">▶</span> Read to me';
+    }
+  }
+
   function disable() {
     enabled = false;
     isPaused = false;
@@ -571,7 +588,7 @@
     document.body.classList.remove("narration-paused");
 
     controlsDiv.style.display = "none";
-    startBtn.innerHTML = '<span class="narrate-ico">▶</span> Read to me'; // compact corner restart
+    updateStartButtonLabel();
     startBtn.style.display = "flex";
 
     stop();
@@ -609,6 +626,7 @@
               panelContainer.classList.remove("is-intro");
               panelContainer.style.transform = "";
             }
+            updateStartButtonLabel();
           }
         }
       },
@@ -862,6 +880,9 @@
       // Mute observer-driven section switches for the duration of this scroll.
       suppressObserverUntil = performance.now() + (reduceMotion ? 200 : 1500);
       currentVisible = id; // set immediately so observer doesn't trigger on intermediate positions
+      if (!enabled) {
+        updateStartButtonLabel();
+      }
       if (reduceMotion) {
         s.scrollIntoView({ behavior: "auto", block: "start" });
       } else {

@@ -4,12 +4,13 @@ This document details the codebase updates made to **Lumo Dreams** to support pr
 
 ---
 
-## 🎙️ 1. Audio Alignment & Pronunciation Engine
-*   **Waveform timing aligner (`scripts/align-timings.mjs`):**
-    *   *Why it changed:* the earlier approach asked `gemini-3.1-pro-preview` to read the audio and return timestamps. LLMs can't do sample-accurate forced alignment — they estimate, and drift inconsistently by a few hundred ms (the old prompt even hard-coded a manual correction for one sentence). The highlight was audibly out, first noticeably at *"…surrounding fields. But she always returned."* (a single baked MP3, so not an MP3-gap issue).
-    *   *New approach:* decode each MP3 to PCM (`mpg123-decoder`), build a 10 ms RMS energy envelope, and detect the **real speech onsets** (points where speech resumes after a pause, tagged with the pause length). Each sentence's start is then **snapped to the nearest true onset**, using the existing per-sentence times only as a prior for *which* pause is a sentence boundary (vs a comma/clause pause), preferring onsets after a longer pause. A 100 ms anticipatory lead is applied so the highlight lands just before the word.
-    *   The frontend advances the highlight on each sentence's `s`, so onset-accurate starts are exactly what matter; the result is waveform-accurate and doesn't drift.
-    *   Still supports target filtering (`node scripts/align-timings.mjs ch1 ch2`) and a `--dry` preview; run `npm run align` for all tracks.
+## 🎙️ 1. Exact Timing via Per-Sentence Generation & Pronunciation Engine
+*   **Per-sentence synthesis (`scripts/generate-narration.mjs`) — the timing fix:**
+    *   *Why:* Gemini TTS returns audio only (no timestamps), and no post-hoc alignment is reliable. Asking `gemini-3.1-pro-preview` to read the waveform drifts (LLMs estimate timestamps); a pure signal/silence aligner can't tell a sentence break from a comma pause, especially with the expressive `[breath]`/`[sigh]`/`[gasp]`/`[pause]` tags injecting non-speech audio. Both fixed some spots and broke others (e.g. *"…surrounding fields. But she always returned."*).
+    *   *Now:* each **sentence** is synthesized as its own TTS call (tags kept for performance, stripped for the displayed text), then concatenated with small gaps into one MP3 per track. Because every sentence's audio length is known at creation, the per-sentence `[s, e]` timings are **exact by construction** — no alignment, no drift, ever. Sentence splitting matches the frontend's `/([.!?]\s+)/`, so timings line up 1:1 with the highlight spans (validated for all 23 tracks).
+    *   Trade-off: more TTS calls (~one per sentence). On a paid key set `GEMINI_TTS_DELAY_MS` low; regenerate with `npm run narrate` (all missing) or `node scripts/generate-narration.mjs ch1 --force`.
+    *   `scripts/align-timings.mjs` (waveform refiner, needs `mpg123-decoder`) is kept as an optional fallback for aligning audio that wasn't generated per-sentence, but is **not needed** once you regenerate.
+*   **Pronunciation steering** (unchanged): `Lewi`→`Levee`, `Lumo`→`Lumoh` in the TTS prompt only; on-screen spelling is untouched.
 *   **Pronunciation steering overrides (`scripts/generate-narration.mjs`):**
     *   Configured text interceptors to phonetically substitute target names in text prompts sent to the Google TTS synthesis API:
         *   `"Lewi"` ➡️ `"Levee"`: Forces correct storyteller RP pronunciation (`"Leh-vee"`, as in *Chevy to the levee*) instead of the default `"Louie"` or `"Lee-vye"` (Levi).
