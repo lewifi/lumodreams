@@ -170,7 +170,7 @@ function parseQuota(bodyText) {
 
 async function synthParagraph(chapter, para, attempt = 1) {
   const ttsText = para.text
-    .replace(/\bLewi\b/g, "Levy")
+    .replace(/\bLewi\b/g, "Levee")
     .replace(/\bLumo\b/g, "Lumoh")
     .replace(/\blumo\b/g, "lumoh");
   const promptText = `${stylePrompt(chapter, para)}\n\n${ttsText}`;
