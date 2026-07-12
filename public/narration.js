@@ -203,6 +203,17 @@
     buildToggle();
     observeSections();
     audio.addEventListener("ended", onEnded);
+
+    // Intercept cover/scroll links to scroll programmatically and mute observer
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      const targetId = anchor.getAttribute("href").slice(1);
+      if (manifest.includes(targetId) || targetId === "theend") {
+        anchor.addEventListener("click", (e) => {
+          e.preventDefault();
+          scrollToSection(targetId);
+        });
+      }
+    });
     // Drive highlighting from the media clock, not rAF — this stays in sync when
     // the tab is backgrounded or the window is unfocused (rAF throttles/stops),
     // and it automatically pauses/resumes with the audio.
@@ -309,12 +320,15 @@
     panelContainer.style.transform = "none";
     const r = panelContainer.getBoundingClientRect();
     const targetX = window.innerWidth / 2;
-    let targetY = window.innerHeight * 0.7;
-    const cta = document.querySelector(".cover-actions");
-    if (cta) {
-      const cr = cta.getBoundingClientRect();
-      if (cr.top > 0) targetY = cr.top - r.height / 2 - 18; // just above the buttons
+    let targetY = window.innerHeight * 0.62;
+    // Anchor above the byline/buttons so the pill never covers the author name.
+    const anchor = document.querySelector(".cover-content .byline") ||
+      document.querySelector(".cover-actions");
+    if (anchor) {
+      const ar = anchor.getBoundingClientRect();
+      if (ar.top > 0) targetY = ar.top - r.height / 2 - 20;
     }
+    targetY = Math.max(window.innerHeight * 0.14, targetY); // keep it on screen
     const dx = Math.round(targetX - (r.left + r.width / 2));
     const dy = Math.round(targetY - (r.top + r.height / 2));
     panelContainer.style.transform = `translate(${dx}px, ${dy}px)`;
@@ -650,6 +664,7 @@
     if (s) {
       // Mute observer-driven section switches for the duration of this scroll.
       suppressObserverUntil = performance.now() + (reduceMotion ? 200 : 1500);
+      currentVisible = id; // set immediately so observer doesn't trigger on intermediate positions
       s.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
     }
   }
