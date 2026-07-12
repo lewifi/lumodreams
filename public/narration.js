@@ -72,7 +72,7 @@
     let steps = 20;
     const duration = 2000; // 2 seconds cross-fade
     const intervalTime = duration / steps;
-    const targetVolume = 0.15; // 15% volume
+    const targetVolume = isMusicMuted ? 0 : 0.15;
     
     if (musicFadeInterval) clearInterval(musicFadeInterval);
     
@@ -131,8 +131,25 @@
     buildToggle();
     observeSections();
     audio.addEventListener("ended", onEnded);
+    let wasPlayingBeforeHide = false;
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden && playing) audio.pause();
+      if (document.hidden) {
+        if (playing && !audio.paused) {
+          audio.pause();
+          wasPlayingBeforeHide = true;
+        }
+        if (activeMusic && !activeMusic.paused) {
+          activeMusic.pause();
+        }
+      } else {
+        if (wasPlayingBeforeHide && playing && !isPaused) {
+          audio.play().catch(() => {});
+          wasPlayingBeforeHide = false;
+        }
+        if (enabled && activeMusic && activeMusic.paused && currentMusicUrl && !isMusicMuted && !isPaused) {
+          activeMusic.play().catch(() => {});
+        }
+      }
     });
 
     // Preface modal narration: when read-along is on and the modal opens, narrate
@@ -149,23 +166,92 @@
   }
 
   /* ---------- UI toggle ---------- */
-  let toggleBtn;
+  let panelContainer;
+  let startBtn;
+  let controlsDiv;
+  let pauseBtn;
+  let musicBtn;
+  let stopBtn;
+
+  let isPaused = false;
+  let isMusicMuted = false;
+
   function buildToggle() {
-    toggleBtn = document.createElement("button");
-    toggleBtn.type = "button";
-    toggleBtn.className = "narrate-toggle";
-    toggleBtn.setAttribute("aria-pressed", "false");
-    setToggleLabel();
-    toggleBtn.addEventListener("click", () => (enabled ? disable() : enable()));
-    document.body.appendChild(toggleBtn);
+    panelContainer = document.createElement("div");
+    panelContainer.className = "narrate-panel";
+
+    startBtn = document.createElement("button");
+    startBtn.type = "button";
+    startBtn.className = "narrate-toggle";
+    startBtn.innerHTML = '<span class="narrate-ico">▶</span> Read to me';
+    startBtn.addEventListener("click", enable);
+    panelContainer.appendChild(startBtn);
+
+    controlsDiv = document.createElement("div");
+    controlsDiv.className = "narrate-controls";
+    controlsDiv.style.display = "none";
+
+    pauseBtn = document.createElement("button");
+    pauseBtn.type = "button";
+    pauseBtn.className = "narrate-btn";
+    pauseBtn.innerHTML = '⏸ Pause';
+    pauseBtn.addEventListener("click", togglePause);
+    controlsDiv.appendChild(pauseBtn);
+
+    musicBtn = document.createElement("button");
+    musicBtn.type = "button";
+    musicBtn.className = "narrate-btn";
+    musicBtn.innerHTML = '🔊 Music';
+    musicBtn.addEventListener("click", toggleMusic);
+    controlsDiv.appendChild(musicBtn);
+
+    stopBtn = document.createElement("button");
+    stopBtn.type = "button";
+    stopBtn.className = "narrate-btn";
+    stopBtn.innerHTML = '⏹ Stop';
+    stopBtn.addEventListener("click", disable);
+    controlsDiv.appendChild(stopBtn);
+
+    panelContainer.appendChild(controlsDiv);
+    document.body.appendChild(panelContainer);
   }
-  function setToggleLabel() {
-    toggleBtn.innerHTML = enabled
-      ? '<span class="narrate-ico">❚❚</span> Stop reading'
-      : '<span class="narrate-ico">▶</span> Read to me';
-    toggleBtn.setAttribute("aria-label", enabled ? "Stop narration" : "Read the story aloud");
-    toggleBtn.setAttribute("aria-pressed", enabled ? "true" : "false");
-    toggleBtn.classList.toggle("is-on", enabled);
+
+  function togglePause() {
+    if (!playing) return;
+    
+    isPaused = !isPaused;
+    if (isPaused) {
+      audio.pause();
+      if (activeMusic) activeMusic.pause();
+      pauseBtn.innerHTML = '▶ Resume';
+      pauseBtn.classList.add("is-active");
+    } else {
+      audio.play().catch(() => {});
+      if (activeMusic && !isMusicMuted) activeMusic.play().catch(() => {});
+      pauseBtn.innerHTML = '⏸ Pause';
+      pauseBtn.classList.remove("is-active");
+    }
+  }
+
+  function toggleMusic() {
+    isMusicMuted = !isMusicMuted;
+    if (isMusicMuted) {
+      musicA.volume = 0;
+      musicB.volume = 0;
+      musicA.pause();
+      musicB.pause();
+      musicBtn.innerHTML = '🔇 Mute';
+      musicBtn.classList.add("is-active");
+    } else {
+      musicBtn.innerHTML = '🔊 Music';
+      musicBtn.classList.remove("is-active");
+      if (enabled) {
+        if (activeMusic) {
+          activeMusic.volume = 0.15;
+          activeMusic.play().catch(() => {});
+        }
+      }
+    }
   }
 
   function getActiveSection() {
@@ -188,20 +274,30 @@
 
   function enable() {
     enabled = true;
-    document.body.classList.add("narrating"); // app.js: narration owns morph timing
-    setToggleLabel();
+    isPaused = false;
+    document.body.classList.add("narrating");
+
+    startBtn.style.display = "none";
+    controlsDiv.style.display = "flex";
+    pauseBtn.innerHTML = '⏸ Pause';
+    pauseBtn.classList.remove("is-active");
+
     const target = getActiveSection() || manifest[0];
     currentVisible = target;
     playSection(target);
-    if (MUSIC_MAP[target]) {
+    if (MUSIC_MAP[target] && !isMusicMuted) {
       playMusic(MUSIC_MAP[target]);
     }
   }
 
   function disable() {
     enabled = false;
+    isPaused = false;
     document.body.classList.remove("narrating");
-    setToggleLabel();
+
+    controlsDiv.style.display = "none";
+    startBtn.style.display = "flex";
+
     stop();
     clearHighlights();
     fadeOutMusic();

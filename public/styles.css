@@ -193,12 +193,17 @@ body {
   text-shadow: 0 0 16px rgba(242, 200, 121, 0.55), 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
-/* "Read to me" toggle */
-.narrate-toggle {
+/* "Read to me" control panel */
+.narrate-panel {
   position: fixed;
   right: max(1rem, env(safe-area-inset-right));
   bottom: max(1rem, env(safe-area-inset-bottom));
   z-index: 40;
+  display: flex;
+  align-items: center;
+}
+
+.narrate-toggle {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -218,12 +223,51 @@ body {
 }
 .narrate-toggle:hover { background: rgba(8, 13, 28, 0.8); border-color: rgba(255, 255, 255, 0.5); }
 .narrate-toggle:active { transform: translateY(1px); }
-.narrate-toggle.is-on {
-  color: #2a1c05;
-  background: var(--candle-gold);
-  border-color: transparent;
-  box-shadow: 0 10px 30px rgba(242, 200, 121, 0.4);
+
+.narrate-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(8, 13, 28, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  animation: narrate-slide-in 240ms cubic-bezier(.2,.7,.2,1);
 }
+
+@keyframes narrate-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.narrate-btn {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--white);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.narrate-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.narrate-btn.is-active {
+  background: var(--candle-gold);
+  color: #2a1c05;
+}
+
 .narrate-ico { font-size: 0.8em; line-height: 1; }
 
 /* ---------- Cover ---------- */
