@@ -218,7 +218,6 @@ body {
   text-align: center;
   max-width: 30rem;
 }
-.theend-actions { align-items: center; }
 .theend-title {
   font-family: var(--font-serif);
   font-size: clamp(2.6rem, 9vw, 5rem);
@@ -228,7 +227,7 @@ body {
   letter-spacing: 1px;
   text-shadow: 0 3px 24px rgba(0,0,0,0.8), 0 0 40px rgba(242,200,121,0.25);
 }
-.theend-actions { display: flex; flex-direction: column; gap: 0.7rem; align-items: flex-start; }
+.theend-actions { display: flex; flex-direction: column; gap: 0.7rem; align-items: center; }
 
 /* ---------- Buttons ---------- */
 .btn {
