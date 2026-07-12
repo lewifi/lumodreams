@@ -164,10 +164,20 @@
   }
 
   function wordify(root) {
-    root.querySelectorAll(".prose p").forEach((p) => {
-      if (p.dataset.wordified) return;
-      wordifyNode(p);
-      p.dataset.wordified = "true";
+    const targets = Array.from(root.querySelectorAll(".chapter:not(.cover):not(.theend), .modal"));
+    targets.forEach((container) => {
+      const elements = [];
+      const eyebrow = container.querySelector(".eyebrow");
+      if (eyebrow) elements.push(eyebrow);
+      const h2 = container.querySelector("h2");
+      if (h2) elements.push(h2);
+      container.querySelectorAll(".prose p").forEach((p) => elements.push(p));
+      
+      elements.forEach((el) => {
+        if (el.dataset.wordified) return;
+        wordifyNode(el);
+        el.dataset.wordified = "true";
+      });
     });
   }
   window.__lumoWordify = wordify; // exposed for v2 wiring

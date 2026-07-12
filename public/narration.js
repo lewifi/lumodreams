@@ -82,13 +82,30 @@
     toggleBtn.classList.toggle("is-on", enabled);
   }
 
+  function getActiveSection() {
+    let best = null;
+    let bestVisibleHeight = -1;
+    for (const id of manifest) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      const rect = el.getBoundingClientRect();
+      const visibleTop = Math.max(0, rect.top);
+      const visibleBottom = Math.min(window.innerHeight, rect.bottom);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+      if (visibleHeight > bestVisibleHeight) {
+        bestVisibleHeight = visibleHeight;
+        best = id;
+      }
+    }
+    return best;
+  }
+
   function enable() {
     enabled = true;
     document.body.classList.add("narrating"); // app.js: narration owns morph timing
     setToggleLabel();
-    const target =
-      currentVisible && manifest.includes(currentVisible) ? currentVisible : manifest[0];
-    if (currentVisible !== target) scrollToSection(target);
+    const target = getActiveSection() || manifest[0];
+    currentVisible = target;
     playSection(target);
   }
 
@@ -145,44 +162,104 @@
     if (playing && playing.id === id) return;
     loadingId = id;
     stop();
-    const data = await getTiming(id);
+
     const section = document.getElementById(id);
-    if (!data || !section || !enabled) { loadingId = null; return; }
+    if (!section || !enabled) { loadingId = null; return; }
 
-    const spans = Array.from(section.querySelectorAll(".prose .word"));
-    resetSpans(spans);
+    // Build the list of potential subtracks to play
+    const candidateTracks = [];
+    if (id !== "cover") {
+      const eyebrow = section.querySelector(".eyebrow");
+      if (eyebrow) {
+        candidateTracks.push({ suffix: "-eyebrow", selector: ".eyebrow .word" });
+      }
+      const h2 = section.querySelector("h2");
+      if (h2) {
+        candidateTracks.push({ suffix: "-title", selector: "h2 .word" });
+      }
+    }
+    // Main body track
+    candidateTracks.push({ suffix: "", selector: ".prose .word" });
 
-    // Video morph: start fresh on the primary clip, note when to crossfade.
-    section.classList.remove("is-morphed");
+    // Fetch timing data for all candidate tracks that are actually generated
+    const tracks = [];
+    for (const cand of candidateTracks) {
+      const timing = await getTiming(id + cand.suffix);
+      if (timing) {
+        const spans = Array.from(section.querySelectorAll(cand.selector));
+        tracks.push({
+          suffix: cand.suffix,
+          spans,
+          words: timing.words,
+        });
+      }
+    }
+
+    if (tracks.length === 0) { loadingId = null; return; }
+
+    // Check for video morph cue on the main body track
     let morphAt = null;
     const cue = section.dataset.morphCue;
     if (cue && section.dataset.videoMorph) {
-      const hit = data.words.find((w) => normWord(w.w) === normWord(cue));
-      if (hit) morphAt = hit.s;
+      const bodyTrack = tracks.find((t) => t.suffix === "");
+      if (bodyTrack) {
+        const hit = bodyTrack.words.find((w) => normWord(w.w) === normWord(cue));
+        if (hit) morphAt = hit.s;
+      }
     }
 
-    audio.src = BASE + id + ".wav";
+    section.classList.remove("is-morphed");
+
+    playing = {
+      id,
+      section,
+      tracks,
+      trackIdx: 0,
+      spans: tracks[0].spans,
+      words: tracks[0].words,
+      idx: -1,
+      morphAt,
+      raf: 0,
+    };
+
+    loadingId = null;
+    playTrack(0);
+  }
+
+  async function playTrack(idx) {
+    if (!playing || idx >= playing.tracks.length) {
+      onSectionComplete();
+      return;
+    }
+
+    playing.trackIdx = idx;
+    const track = playing.tracks[idx];
+    playing.spans = track.spans;
+    playing.words = track.words;
+    playing.idx = -1;
+    resetSpans(playing.spans);
+
+    audio.src = BASE + playing.id + track.suffix + ".mp3";
     try {
       audio.currentTime = 0;
     } catch {}
-    playing = { id, section, spans, words: data.words, idx: -1, morphAt, raf: 0 };
 
     try {
       await audio.play();
     } catch {
-      playing = null;
-      loadingId = null;
-      return; // autoplay blocked; wait for another user gesture
+      stop();
+      return; // autoplay blocked
     }
-    loadingId = null;
     tick();
   }
 
   function tick() {
     if (!playing) return;
-    const { words, spans } = playing;
+    const { words, spans, trackIdx, tracks } = playing;
+    const currentTrack = tracks[trackIdx];
     const t = audio.currentTime;
-    if (playing.morphAt != null && t >= playing.morphAt) {
+    // Video morph ONLY triggers when the main body track is active (suffix === "")
+    if (currentTrack.suffix === "" && playing.morphAt != null && t >= playing.morphAt) {
       if (window.__lumoTriggerMorph) window.__lumoTriggerMorph(playing.section);
       else playing.section.classList.add("is-morphed");
       playing.morphAt = null; // once
@@ -195,7 +272,20 @@
       for (let k = Math.max(0, playing.idx); k < maxI; k++) {
         if (spans[k]) { spans[k].classList.add("is-spoken"); spans[k].classList.remove("is-current"); }
       }
-      if (spans[maxI]) { spans[maxI].classList.add("is-current"); spans[maxI].classList.remove("is-spoken"); }
+      if (spans[maxI]) {
+        spans[maxI].classList.add("is-current");
+        spans[maxI].classList.remove("is-spoken");
+        
+        // Auto-scroll the word into the center of the viewport if needed
+        const viewportHeight = window.innerHeight;
+        const rect = spans[maxI].getBoundingClientRect();
+        if (rect.bottom > viewportHeight * 0.75 || rect.top < viewportHeight * 0.25) {
+          const isInModal = playing.section.closest(".modal");
+          if (isInModal || playing.section.offsetHeight > viewportHeight) {
+            spans[maxI].scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+      }
       playing.idx = maxI;
     }
     playing.raf = requestAnimationFrame(tick);
@@ -204,6 +294,18 @@
   function onEnded() {
     if (!playing) return;
     playing.spans.forEach((s) => { s.classList.add("is-spoken"); s.classList.remove("is-current"); });
+    
+    // Play next track in the queue for this chapter section if there is one
+    if (playing.trackIdx + 1 < playing.tracks.length) {
+      playTrack(playing.trackIdx + 1);
+      return;
+    }
+
+    onSectionComplete();
+  }
+
+  function onSectionComplete() {
+    if (!playing) return;
     const finishedId = playing.id;
     stop();
     if (!enabled) return;

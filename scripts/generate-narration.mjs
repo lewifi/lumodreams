@@ -21,7 +21,7 @@
 // is rebuilt from whatever .wav files are present, in canonical order.
 //
 // Output (git-committed, served as static assets):
-//   public/audio/<id>.wav
+//   public/audio/<id>.mp3
 //   public/audio/<id>.json      { id, duration, words:[{w,s,e}] }
 //   public/audio/manifest.json  [ ids... ]  (read-along scroll flow only)
 
@@ -30,6 +30,7 @@ import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { chapters } from "./chapters.mjs";
+import * as lamejs from "@breezystack/lamejs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = join(__dirname, "..", "public", "audio");
@@ -102,6 +103,29 @@ function trimSilence(buf) {
 
 function silenceBuffer(ms) {
   return Buffer.alloc(Math.floor((ms / 1000) * SAMPLE_RATE) * 2); // zeros
+}
+
+function encodeMP3(pcmBuffer) {
+  const mp3encoder = new lamejs.Mp3Encoder(1, SAMPLE_RATE, 64);
+  const mp3Data = [];
+  const samples = new Int16Array(
+    pcmBuffer.buffer,
+    pcmBuffer.byteOffset,
+    pcmBuffer.length / 2
+  );
+  const sampleBlockSize = 1152;
+  for (let i = 0; i < samples.length; i += sampleBlockSize) {
+    const chunk = samples.subarray(i, i + sampleBlockSize);
+    const mp3buf = mp3encoder.encodeBuffer(chunk);
+    if (mp3buf.length > 0) {
+      mp3Data.push(Buffer.from(mp3buf));
+    }
+  }
+  const mp3buf = mp3encoder.flush();
+  if (mp3buf.length > 0) {
+    mp3Data.push(Buffer.from(mp3buf));
+  }
+  return Buffer.concat(mp3Data);
 }
 
 function wavHeader(dataLen) {
@@ -221,44 +245,65 @@ function resolveId(arg) {
   return a; // assume it's already a valid id (ch1, epilogue-ch, …)
 }
 
-async function generateChapter(ch, silence) {
+async function generateChapter(ch, silence, force) {
   console.log(`▶ ${ch.id} — ${ch.title}`);
-  const pcmChunks = [];
-  const words = [];
-  let cursorSamples = 0;
-
-  for (let p = 0; p < ch.paragraphs.length; p++) {
-    const para = ch.paragraphs[p];
-    process.stdout.write(`  · paragraph ${p + 1}/${ch.paragraphs.length} … `);
-    const pcm = await synthParagraph(ch, para);
-    const dur = pcm.length / 2 / SAMPLE_RATE;
-    const t0 = cursorSamples / SAMPLE_RATE;
-    words.push(...paragraphTimings(para.text, t0, dur));
-    pcmChunks.push(pcm);
-    cursorSamples += pcm.length / 2;
-    if (p < ch.paragraphs.length - 1) {
-      pcmChunks.push(silence);
-      cursorSamples += silence.length / 2;
-    }
-    console.log(`${dur.toFixed(1)}s`);
-    await sleep(CALL_DELAY_MS);
+  
+  const subTracks = [];
+  if (ch.id === "cover") {
+    subTracks.push({ suffix: "", paragraphs: ch.paragraphs });
+  } else {
+    subTracks.push({ suffix: "-eyebrow", paragraphs: [ch.paragraphs[0]] });
+    subTracks.push({ suffix: "-title", paragraphs: [ch.paragraphs[1]] });
+    subTracks.push({ suffix: "", paragraphs: ch.paragraphs.slice(2) });
   }
 
-  const data = Buffer.concat(pcmChunks);
-  const duration = +(data.length / 2 / SAMPLE_RATE).toFixed(3);
-  await writeFile(join(OUT_DIR, `${ch.id}.wav`), Buffer.concat([wavHeader(data.length), data]));
-  await writeFile(
-    join(OUT_DIR, `${ch.id}.json`),
-    JSON.stringify({ id: ch.id, voice: VOICE, duration, words })
-  );
-  console.log(`  ✓ ${ch.id}.wav (${duration.toFixed(1)}s, ${words.length} words)\n`);
+  for (const track of subTracks) {
+    const trackId = `${ch.id}${track.suffix}`;
+    const has = existsSync(join(OUT_DIR, `${trackId}.mp3`));
+    if (has && !force) {
+      console.log(`  — skip ${trackId} (already generated)`);
+      continue;
+    }
+
+    console.log(`  ▶ Generating ${trackId} …`);
+    const pcmChunks = [];
+    const words = [];
+    let cursorSamples = 0;
+
+    for (let p = 0; p < track.paragraphs.length; p++) {
+      const para = track.paragraphs[p];
+      process.stdout.write(`    · paragraph ${p + 1}/${track.paragraphs.length} … `);
+      const pcm = await synthParagraph(ch, para);
+      const dur = pcm.length / 2 / SAMPLE_RATE;
+      const t0 = cursorSamples / SAMPLE_RATE;
+      words.push(...paragraphTimings(para.text, t0, dur));
+      pcmChunks.push(pcm);
+      cursorSamples += pcm.length / 2;
+      if (p < track.paragraphs.length - 1) {
+        pcmChunks.push(silence);
+        cursorSamples += silence.length / 2;
+      }
+      console.log(`${dur.toFixed(1)}s`);
+      await sleep(CALL_DELAY_MS);
+    }
+
+    const data = Buffer.concat(pcmChunks);
+    const duration = +(data.length / 2 / SAMPLE_RATE).toFixed(3);
+    const mp3Data = encodeMP3(data);
+    await writeFile(join(OUT_DIR, `${trackId}.mp3`), mp3Data);
+    await writeFile(
+      join(OUT_DIR, `${trackId}.json`),
+      JSON.stringify({ id: trackId, voice: VOICE, duration, words })
+    );
+    console.log(`    ✓ ${trackId}.mp3 (${duration.toFixed(1)}s, ${words.length} words)\n`);
+  }
 }
 
 // Rebuild the read-along manifest from whatever audio is present on disk, in
 // canonical chapter order, excluding standalone entries (inFlow: false).
 async function writeManifest() {
   const present = chapters
-    .filter((c) => c.inFlow !== false && existsSync(join(OUT_DIR, `${c.id}.wav`)))
+    .filter((c) => c.inFlow !== false && existsSync(join(OUT_DIR, `${c.id}.mp3`)))
     .map((c) => c.id);
   await writeFile(join(OUT_DIR, "manifest.json"), JSON.stringify(present));
   return present;
@@ -289,14 +334,18 @@ async function main() {
   let failure = null;
 
   for (const ch of chapters) {
-    const has = existsSync(join(OUT_DIR, `${ch.id}.wav`));
+    const hasBody = existsSync(join(OUT_DIR, `${ch.id}.mp3`));
+    const hasEyebrow = ch.id === "cover" || existsSync(join(OUT_DIR, `${ch.id}-eyebrow.mp3`));
+    const hasTitle = ch.id === "cover" || existsSync(join(OUT_DIR, `${ch.id}-title.mp3`));
+    const has = hasBody && hasEyebrow && hasTitle;
+    
     const shouldGen = requested.size ? requested.has(ch.id) : force || !has;
     if (!shouldGen) {
       console.log(`— skip ${ch.id} (${has ? "already generated" : "not requested"})`);
       continue;
     }
     try {
-      await generateChapter(ch, silence);
+      await generateChapter(ch, silence, force);
       done++;
     } catch (e) {
       failure = e; // stop, but keep whatever finished

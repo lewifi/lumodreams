@@ -52,7 +52,7 @@ the voice and each chapter flows into the next when its audio ends.
 
 ```
 scripts/chapters.mjs             # narration text + per-paragraph [Mood]/[Expression]
-scripts/generate-narration.mjs   # Gemini TTS → public/audio/*.wav + timing JSON
+scripts/generate-narration.mjs   # Gemini TTS → public/audio/*.mp3 + timing JSON
 ```
 
 Each paragraph is synthesized separately (21 calls total) in the **Leda** voice with
@@ -71,9 +71,9 @@ Optional overrides (env vars): `GEMINI_TTS_VOICE` (e.g. `Achernar`, `Aoede`),
 `GEMINI_TTS_ACCENT` (`british` | `nordic`), `GEMINI_TTS_MODEL`.
 
 > Note: accent is steered by the prompt — Gemini has no dedicated British/Nordic
-> voice, so `british` is reliable while `nordic` is only approximated. WAV output is
-> uncompressed; convert to `.mp3`/`.aac` later if you want smaller files (the
-> frontend just needs the file extension updated in `narration.js`).
+> voice, so `british` is reliable while `nordic` is only approximated. Audio is encoded
+> as `.mp3` at 64kbps mono for optimized load times (generated as PCM and compressed
+> via `@breezystack/lamejs`).
 
 The v1 markup keeps prose in a clean paragraph model; `app.js`'s `wordify()`
 (exposed as `window.__lumoWordify`) wraps every word — including italicised ones —

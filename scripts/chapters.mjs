@@ -39,6 +39,16 @@ export const chapters = [
     mood: "the author’s warm, personal prologue — an intimate hush before the tale",
     paragraphs: [
       {
+        text: "Preface",
+        mood: "warm, personal prologue",
+        expression: "gentle storyteller tone; pause briefly after"
+      },
+      {
+        text: "Dreams of Being a Real Human",
+        mood: "warm, personal prologue",
+        expression: "soft, storytelling title tone; pause briefly after"
+      },
+      {
         text: "A story inspired by the Nordic Lapland, Hong Kong and Australia, in three dogs and one human heart, with love from Lumi the Border Collie, Susi the Husky, Molly the Cavoodle, and me.",
         mood: "affectionate dedication",
         expression: "warm and heartfelt, a gentle smile in the voice"
@@ -65,6 +75,16 @@ export const chapters = [
     title: "A Puppy’s World",
     mood: "warm, cosy, pastoral wonder — the safe world of a beloved puppy",
     paragraphs: [
+      {
+        text: "Chapter One",
+        mood: "warm, cosy, pastoral wonder",
+        expression: "clear storyteller statement, welcoming and gentle; pause briefly after"
+      },
+      {
+        text: "A Puppy’s World",
+        mood: "warm, cosy, pastoral wonder",
+        expression: "softly stated; pause briefly after"
+      },
       {
         text: "Lumo was a six-month-old Australian Shepherd puppy who lived on a small farm outside a quiet arctic town. The farm was home to cows rather than sheep, which an Aussie would usually herd instead, though she did not mind. The cows smelled warm and friendly, and the fields were full of flowers and scents she had not yet explored. In summer, cloudberries glowed like tiny amber lanterns across the bushes, though she was not allowed to eat them.",
         mood: "gentle, sunlit introduction",
@@ -93,6 +113,16 @@ export const chapters = [
     mood: "hopeful and endearing, shaded by a tender heartache",
     paragraphs: [
       {
+        text: "Chapter Two",
+        mood: "hopeful and endearing",
+        expression: "clear storyteller statement; pause briefly after"
+      },
+      {
+        text: "The Dream of Being Human",
+        mood: "hopeful and endearing",
+        expression: "softly stated; pause briefly after"
+      },
+      {
         text: "Lumo began practising. She tried standing on her hind legs, wobbling proudly like a little dancer. She jumped so high that her nose nearly met the father’s face to impress him. She attempted human sounds too, producing half-barks and curious noises as if mimicking speech.",
         mood: "eager, comic determination",
         expression: "playful, bright, affectionately amused"
@@ -114,6 +144,16 @@ export const chapters = [
     title: "Trials and Frustrations",
     mood: "restless struggle deepening into loneliness and cold",
     paragraphs: [
+      {
+        text: "Chapter Three",
+        mood: "restless struggle",
+        expression: "clear storyteller statement; pause briefly after"
+      },
+      {
+        text: "Trials and Frustrations",
+        mood: "restless struggle",
+        expression: "softly stated; pause briefly after"
+      },
       {
         text: "As the cold deepened and the polar nights crept in, stretching across the days with bluish twilight during the day and darkness at night, Lumo tried harder than ever to be human. She climbed onto tables searching for snacks and was scolded for it. She squeezed herself into the girls’ clothes, tumbling over in sleeves that tangled around her paws. She jumped on chairs and sat at the dinner table as politely as she could, but was told to get down.",
         mood: "busy, comical effort under a darkening sky",
@@ -137,6 +177,16 @@ export const chapters = [
     mood: "peril and exhaustion giving way to luminous wonder and homeward comfort",
     paragraphs: [
       {
+        text: "Chapter Four",
+        mood: "weary suspense transitioning to awe",
+        expression: "clear storyteller statement; pause briefly after"
+      },
+      {
+        text: "The Turning Point",
+        mood: "weary suspense transitioning to awe",
+        expression: "softly stated; pause briefly after"
+      },
+      {
         text: "Lumo wandered for hours. The snow lay deep beneath her paws and each laboured breath stung in the icy air. The wind rustled through the trees like a distant whisper. Her strength soon faded and she curled beneath a pine tree, nose tucked beneath her tail. Her thick coat helped, but she was not warm.",
         mood: "cold, weary, fragile",
         expression: "slow and laboured, tender concern"
@@ -159,6 +209,16 @@ export const chapters = [
     mood: "relief, homecoming, and the quiet warmth of being loved",
     paragraphs: [
       {
+        text: "Chapter Five",
+        mood: "relief, homecoming, and quiet warmth",
+        expression: "clear storyteller statement; pause briefly after"
+      },
+      {
+        text: "The Realisation",
+        mood: "relief, homecoming, and quiet warmth",
+        expression: "softly stated; pause briefly after"
+      },
+      {
         text: "The family found her just after dawn. They gathered around her with relief and love. The father carried her back to the house, the mother wrapped her in a blanket, and the youngest girl hugged her so tightly that Lumo let out a tired but contented sigh.",
         mood: "tearful relief and love",
         expression: "tender joy, a soft contented sigh"
@@ -180,6 +240,16 @@ export const chapters = [
     title: "Spring Returns",
     mood: "renewal, joy, and a loving, whispered farewell",
     paragraphs: [
+      {
+        text: "Epilogue",
+        mood: "renewal and joy",
+        expression: "clear storyteller statement; pause briefly after"
+      },
+      {
+        text: "Spring Returns",
+        mood: "renewal and joy",
+        expression: "softly stated; pause briefly after"
+      },
       {
         text: "Spring returned slowly. Snow slid from rooftops, rivers began to run again, and the scent of pine and birch filled the warming air. The fields turned green. Soon the midnight sun rose and the world glowed with gentle, endless daylight.",
         mood: "bright, thawing renewal",
