@@ -48,8 +48,9 @@
     const isPaused = document.body.classList.contains("narration-paused");
     [section._video, section._videoMorph].forEach((v) => {
       if (!v) return;
-      v.muted = !isNarrating || isMuted || isPaused;
-      v.volume = (isNarrating && !isMuted && !isPaused) ? 0.04 : 0;
+      const isMutedTrack = v.src.includes("a-puppys-world.mp4") || v.src.includes("lumo1.mp4");
+      v.muted = !isNarrating || isMuted || isPaused || isMutedTrack;
+      v.volume = (isNarrating && !isMuted && !isPaused && !isMutedTrack) ? 0.02 : 0;
       const p = v.play();
       if (p && p.catch) p.catch(() => {}); // ignore autoplay rejections
     });

@@ -54,6 +54,7 @@
   let musicFadeInterval = null;
 
   const MUSIC_VOL = 0.04;         // melody level
+  const VIDEO_SFX_VOL = 0.02;     // separate volume level for video SFX
   const MUSIC_LOWPASS_HZ = 1200;  // roll off highs so the music is warm/soft and sits back
   const MUSIC_FADEOUT_MS = 25000; // long gradual fade as chapter 1 begins
 
@@ -368,11 +369,15 @@
     // Connect to Web Audio graph (low-pass filter) once active
     videos.forEach((v) => connectVideoToAudioGraph(v));
 
-    const startVols = videos.map((v) => (v.muted ? 0 : v.volume));
+    const startVols = videos.map((v) => {
+      const isMutedTrack = v.src.includes("a-puppys-world.mp4") || v.src.includes("lumo1.mp4");
+      return (v.muted || isMutedTrack) ? 0 : v.volume;
+    });
     
     if (targetVol > 0) {
       videos.forEach((v) => {
-        v.muted = false;
+        const isMutedTrack = v.src.includes("a-puppys-world.mp4") || v.src.includes("lumo1.mp4");
+        v.muted = isMutedTrack;
         if (v.volume === 0) v.volume = 0;
       });
     }
@@ -386,6 +391,12 @@
       const progress = step / steps;
       
       videos.forEach((v, idx) => {
+        const isMutedTrack = v.src.includes("a-puppys-world.mp4") || v.src.includes("lumo1.mp4");
+        if (isMutedTrack) {
+          v.volume = 0;
+          v.muted = true;
+          return;
+        }
         const start = startVols[idx];
         const currentVal = start + (targetVol - start) * progress;
         v.volume = Math.max(0, Math.min(1, currentVal));
@@ -396,9 +407,15 @@
         activeVideoFades.delete(section);
         
         videos.forEach((v) => {
-          v.volume = targetVol;
-          if (targetVol === 0) {
+          const isMutedTrack = v.src.includes("a-puppys-world.mp4") || v.src.includes("lumo1.mp4");
+          if (isMutedTrack) {
+            v.volume = 0;
             v.muted = true;
+          } else {
+            v.volume = targetVol;
+            if (targetVol === 0) {
+              v.muted = true;
+            }
           }
         });
       }
@@ -412,7 +429,7 @@
     const isVoicePlaying = enabled && !isPaused && !isMusicMuted && !document.hidden;
     
     document.querySelectorAll(".chapter").forEach((section) => {
-      const targetVol = (section.id === activeSectionId && isVoicePlaying) ? MUSIC_VOL : 0;
+      const targetVol = (section.id === activeSectionId && isVoicePlaying) ? VIDEO_SFX_VOL : 0;
       fadeVideoVolume(section, targetVol, fadeDuration);
     });
   }
