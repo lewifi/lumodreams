@@ -23,7 +23,7 @@ export const chapters = [
     mood: "an inviting, magical opening — the hush before a bedtime story",
     paragraphs: [
       {
-        text: "[warmly] Lumo Dreams of Being a Real Human. [pause] By Lewi Hirvelä.",
+        text: "[warmly] Lumo Dreams of Being a Real Human. [pause] Story by Lewi Hirvelä.",
         mood: "warm, welcoming wonder",
         expression: "gentle and unhurried; a soft pause after the title; pronounce ‘Hirvelä’ as HEER-veh-lah"
       }
