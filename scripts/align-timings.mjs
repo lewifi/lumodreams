@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const AUDIO_DIR = join(__dirname, "..", "public", "audio");
 const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = "gemini-1.5-pro";
+const MODEL = "gemini-3.1-flash-lite";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
