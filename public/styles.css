@@ -194,14 +194,26 @@ body {
   text-shadow: 0 0 16px rgba(242, 200, 121, 0.55), 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
-/* "Read to me" control panel */
+/* "Read to me" control panel — equal bottom/right padding at rest */
 .narrate-panel {
   position: fixed;
-  right: max(1rem, env(safe-area-inset-right));
-  bottom: max(1rem, env(safe-area-inset-bottom));
+  right: max(1.25rem, env(safe-area-inset-right));
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
   z-index: 40;
   display: flex;
   align-items: center;
+  /* flight from the intro spot (transform set in JS) to the resting corner */
+  transition: transform 760ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+}
+/* Intro: a large pill centred over the cover, before narration starts */
+.narrate-panel.is-intro { animation: narrate-intro-in 600ms ease both; }
+@keyframes narrate-intro-in { from { opacity: 0; } to { opacity: 1; } }
+.narrate-panel.is-intro .narrate-toggle {
+  font-size: 1.15rem;
+  padding: 0.95rem 1.9rem;
+  border-color: rgba(242, 200, 121, 0.5);
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.5), 0 0 34px rgba(242, 200, 121, 0.18);
 }
 
 .narrate-toggle {
@@ -220,7 +232,8 @@ body {
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease, transform 120ms ease;
+  transition: background 160ms ease, border-color 160ms ease, transform 120ms ease,
+    font-size 400ms ease, padding 400ms ease;
 }
 .narrate-toggle:hover { background: rgba(8, 13, 28, 0.8); border-color: rgba(255, 255, 255, 0.5); }
 .narrate-toggle:active { transform: translateY(1px); }
@@ -270,6 +283,11 @@ body {
 }
 
 .narrate-ico { font-size: 0.8em; line-height: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .narrate-panel { transition: none; }
+  .narrate-panel.is-intro { animation: none; }
+}
 
 /* ---------- Cover ---------- */
 .cover .scrim {

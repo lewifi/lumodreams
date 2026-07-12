@@ -258,12 +258,12 @@
 
   function buildToggle() {
     panelContainer = document.createElement("div");
-    panelContainer.className = "narrate-panel";
+    panelContainer.className = "narrate-panel is-intro"; // starts as a big centred pill
 
     startBtn = document.createElement("button");
     startBtn.type = "button";
     startBtn.className = "narrate-toggle";
-    startBtn.innerHTML = '<span class="narrate-ico">▶</span> Read to me';
+    startBtn.innerHTML = '<span class="narrate-ico">▶</span> Narrate it to me';
     startBtn.addEventListener("click", enable);
     panelContainer.appendChild(startBtn);
 
@@ -294,6 +294,31 @@
 
     panelContainer.appendChild(controlsDiv);
     document.body.appendChild(panelContainer);
+
+    positionIntro();
+    window.addEventListener("resize", () => {
+      if (panelContainer.classList.contains("is-intro")) positionIntro();
+    });
+  }
+
+  // Place the large intro pill centred, just above the cover's action buttons.
+  // The panel rests at the bottom-right corner; we translate it up to the intro
+  // spot, then enable() clears the transform so it flies back to the corner.
+  function positionIntro() {
+    panelContainer.style.transition = "none";
+    panelContainer.style.transform = "none";
+    const r = panelContainer.getBoundingClientRect();
+    const targetX = window.innerWidth / 2;
+    let targetY = window.innerHeight * 0.7;
+    const cta = document.querySelector(".cover-actions");
+    if (cta) {
+      const cr = cta.getBoundingClientRect();
+      if (cr.top > 0) targetY = cr.top - r.height / 2 - 18; // just above the buttons
+    }
+    const dx = Math.round(targetX - (r.left + r.width / 2));
+    const dy = Math.round(targetY - (r.top + r.height / 2));
+    panelContainer.style.transform = `translate(${dx}px, ${dy}px)`;
+    requestAnimationFrame(() => { panelContainer.style.transition = ""; });
   }
 
   function togglePause() {
@@ -365,10 +390,14 @@
     ensureMusicGraph(); // set up the high-pass routing (needs this user gesture)
     document.body.classList.add("narrating");
 
+    // Swap the big intro pill for the controls, then fly the panel to the corner:
+    // clearing the intro transform lets the CSS transition animate it home.
     startBtn.style.display = "none";
     controlsDiv.style.display = "flex";
     pauseBtn.innerHTML = '⏸ Pause';
     pauseBtn.classList.remove("is-active");
+    panelContainer.classList.remove("is-intro");
+    panelContainer.style.transform = "";
 
     const target = getActiveSection() || manifest[0];
     currentVisible = target;
@@ -381,6 +410,7 @@
     document.body.classList.remove("narrating");
 
     controlsDiv.style.display = "none";
+    startBtn.innerHTML = '<span class="narrate-ico">▶</span> Read to me'; // compact corner restart
     startBtn.style.display = "flex";
 
     stop();
