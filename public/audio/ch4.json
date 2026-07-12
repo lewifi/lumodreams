@@ -6,82 +6,82 @@
     {
       "w": "Lumo wandered for hours.",
       "s": 0.05,
-      "e": 3.7
+      "e": 2.82
     },
     {
       "w": "The snow lay deep beneath her paws and each laboured breath stung in the icy air.",
-      "s": 4.55,
-      "e": 11.55
+      "s": 3.55,
+      "e": 12
     },
     {
       "w": "The wind rustled through the trees like a distant whisper.",
       "s": 12.8,
-      "e": 17.55
+      "e": 18
     },
     {
       "w": "Her strength soon faded and she curled beneath a pine tree, nose tucked beneath her tail.",
-      "s": 18.7,
+      "s": 18.8,
       "e": 27.25
     },
     {
       "w": "Her thick coat helped, but she was not warm.",
-      "s": 28.25,
-      "e": 31.95
+      "s": 28,
+      "e": 32.2
     },
     {
       "w": "When she woke again, the sky had transformed.",
-      "s": 33.7,
-      "e": 38.6
+      "s": 33.8,
+      "e": 39.2
     },
     {
       "w": "Above her, the aurora rippled in waves of green and violet.",
-      "s": 39.85,
-      "e": 46.5
+      "s": 39.95,
+      "e": 46.2
     },
     {
       "w": "It shimmered across the heavens as though the night itself had woken to watch over her.",
-      "s": 47.15,
-      "e": 54.1
+      "s": 47.1,
+      "e": 54.3
     },
     {
       "w": "Wonder warmed her more than the fur on her back.",
-      "s": 55.7,
-      "e": 59.85
+      "s": 55.65,
+      "e": 59.5
     },
     {
       "w": "She felt a small but brave return.",
-      "s": 60.55,
-      "e": 64.3
+      "s": 60.2,
+      "e": 64.6
     },
     {
       "w": "Step by slow step, guided by instinct and memory, she began to make her way home.",
-      "s": 65.55,
-      "e": 74.55
+      "s": 65.5,
+      "e": 74.5
     },
     {
       "w": "When she reached the house it was empty.",
-      "s": 75.85,
-      "e": 79.5
+      "s": 75.3,
+      "e": 78.45
     },
     {
       "w": "The family were out searching for her, calling her name across the fields.",
-      "s": 80.05,
-      "e": 86.05
+      "s": 79.4,
+      "e": 85.5
     },
     {
       "w": "Lumo couldn’t hear them so she turned instead to the barn.",
-      "s": 86.75,
-      "e": 91.8
+      "s": 86.4,
+      "e": 91.75
     },
     {
       "w": "Inside, the cows lay resting, warm bodies steaming in the cold.",
-      "s": 93,
-      "e": 99.45
+      "s": 92.8,
+      "e": 99.7
     },
     {
       "w": "She nestled between them, comforted by their calm breathing, and fell asleep.",
-      "s": 100.55,
-      "e": 107.2
+      "s": 100.7,
+      "e": 108.3
     }
   ]
 }

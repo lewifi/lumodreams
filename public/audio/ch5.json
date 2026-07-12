@@ -5,48 +5,48 @@
   "words": [
     {
       "w": "The family found her just after dawn.",
-      "s": 0,
-      "e": 2.62
+      "s": 0.17,
+      "e": 4.1
     },
     {
       "w": "They gathered around her with relief and love.",
-      "s": 6.16,
-      "e": 9.38
+      "s": 6.42,
+      "e": 10.45
     },
     {
       "w": "Lumo was carried back to the house, wrapped in a warm blanket, and  the girls hugged her so tightly that she let out a tired  but contented sigh.",
-      "s": 11.26,
-      "e": 26.16
+      "s": 11.47,
+      "e": 26.15
     },
     {
       "w": "In that moment she understood that she had always belonged.",
-      "s": 26.96,
-      "e": 34.02
+      "s": 27.65,
+      "e": 34.05
     },
     {
       "w": "She did not need boots or mittens or the power of speech.",
-      "s": 34.68,
-      "e": 40.08
+      "s": 34.86,
+      "e": 40.1
     },
     {
       "w": "She was loved for exactly what she was.",
-      "s": 40.82,
+      "s": 41.22,
       "e": 44.52
     },
     {
       "w": "In the days that followed, the family fed her warm broth and little pieces of cooked meat.",
-      "s": 45.48,
-      "e": 53.08
+      "s": 45.68,
+      "e": 53.52
     },
     {
       "w": "She rested by the fire and watched the windows frost with delicate snowflake patterns.",
-      "s": 53.64,
-      "e": 61.26
+      "s": 54.5,
+      "e": 61.6
     },
     {
       "w": "She no longer felt the desire to become something else.",
-      "s": 62,
-      "e": 66.24
+      "s": 62.4,
+      "e": 66.85
     }
   ]
 }
