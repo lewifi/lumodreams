@@ -77,10 +77,7 @@ The response schema must be:
           }
         ]
       }
-    ],
-    generationConfig: {
-      responseMimeType: "application/json"
-    }
+    ]
   };
 
   const res = await fetch(url, {
@@ -100,7 +97,18 @@ The response schema must be:
     throw new Error("Empty response content from Gemini API.");
   }
 
-  const alignment = JSON.parse(rawText.trim());
+  let cleanText = rawText.trim();
+  if (cleanText.startsWith("```json")) {
+    cleanText = cleanText.substring(7);
+  } else if (cleanText.startsWith("```")) {
+    cleanText = cleanText.substring(3);
+  }
+  if (cleanText.endsWith("```")) {
+    cleanText = cleanText.substring(0, cleanText.length - 3);
+  }
+  cleanText = cleanText.trim();
+
+  const alignment = JSON.parse(cleanText);
   if (!Array.isArray(alignment) || alignment.length === 0) {
     throw new Error("Invalid response format: expected a non-empty JSON array.");
   }
