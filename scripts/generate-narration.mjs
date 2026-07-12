@@ -231,9 +231,25 @@ async function synthParagraph(chapter, para, attempt = 1) {
     throw new Error(`TTS ${res.status}: ${msg.slice(0, 300)}`);
   }
   const json = await res.json();
-  const part = json?.candidates?.[0]?.content?.parts?.find((p) => p.inlineData);
+  const candidate = json?.candidates?.[0];
+  const finishReason = candidate?.finishReason;
+  
+  if (finishReason === "OTHER" && attempt <= 3) {
+    console.warn(`  · finishReason is OTHER, retrying in 5s (attempt ${attempt})`);
+    await sleep(5000);
+    return synthParagraph(chapter, para, attempt + 1);
+  }
+
+  const part = candidate?.content?.parts?.find((p) => p.inlineData);
   const b64 = part?.inlineData?.data;
-  if (!b64) throw new Error("No audio in response: " + JSON.stringify(json).slice(0, 300));
+  if (!b64) {
+    if (attempt <= 3) {
+      console.warn(`  · No audio in response (finishReason: ${finishReason || "UNKNOWN"}), retrying in 5s (attempt ${attempt})`);
+      await sleep(5000);
+      return synthParagraph(chapter, para, attempt + 1);
+    }
+    throw new Error("No audio in response: " + JSON.stringify(json).slice(0, 300));
+  }
   return trimSilence(Buffer.from(b64, "base64"));
 }
 
