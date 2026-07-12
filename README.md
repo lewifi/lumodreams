@@ -8,15 +8,15 @@ Deployed as a **Cloudflare Worker (static assets)** at **lumodreams.lewihirvela.
 
 ```
 public/            # everything served
-  index.html       # cover → preface → 5 chapters → "The End" (scroll-snapped)
+  index.html       # cover → 5 chapters → epilogue → "The End" (scroll-snapped)
   styles.css       # arctic/aurora theme; per-chapter text-legibility variables
-  app.js           # lazy, view-gated chapter videos + epilogue modal
+  app.js           # lazy, view-gated chapter videos + preface modal
   videos/*.mp4      # 480×480 looping clips (kebab-case)
   cover-and-back.png
 wrangler.jsonc     # static-assets-only Worker (no Worker script)
 ```
 
-Chapters are one full-viewport `<section>` each, snap-scrolled. The epilogue is an
+Chapters are one full-viewport `<section>` each, snap-scrolled. The preface is an
 optional modal, offered on the cover and again on the "The End" screen.
 
 ## Develop

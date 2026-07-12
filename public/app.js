@@ -1,8 +1,8 @@
 /* ============================================================
    Lumo Dreams — v1 behaviour
-   - Lazily mounts one looping <video> per chapter; only plays the
-     chapter currently in view (saves battery / decode on mobile).
-   - Epilogue modal: open from cover + "The End", close via ×, backdrop, Esc.
+   - Lazily mounts one looping <video> per chapter (incl. the epilogue);
+     only plays the chapter currently in view (saves battery / decode on mobile).
+   - Preface modal: open from cover + "The End", close via ×, backdrop, Esc.
    - wordify(): v2 scaffold for karaoke highlighting (defined, not run).
    ============================================================ */
 
@@ -52,37 +52,32 @@
   // Warm the very first chapter video eagerly so scrolling in is instant.
   if (chapters[0]) mountVideo(chapters[0]);
 
-  /* ---------- Epilogue modal ---------- */
-  const modal = document.getElementById("epilogue");
-  const modalVideo = modal.querySelector(".modal-video");
+  /* ---------- Preface modal (optional; offered on cover + "The End") ---------- */
+  const modal = document.getElementById("preface");
   let lastFocused = null;
 
-  function openEpilogue() {
+  function openPreface() {
     lastFocused = document.activeElement;
-    if (!modalVideo.src) modalVideo.src = modalVideo.getAttribute("data-video");
     modal.hidden = false;
     document.body.classList.add("modal-open");
-    const p = modalVideo.play();
-    if (p && p.catch) p.catch(() => {});
     const closeBtn = modal.querySelector(".modal-close");
     if (closeBtn) closeBtn.focus();
   }
 
-  function closeEpilogue() {
+  function closePreface() {
     modal.hidden = true;
     document.body.classList.remove("modal-open");
-    modalVideo.pause();
     if (lastFocused && lastFocused.focus) lastFocused.focus();
   }
 
-  document.querySelectorAll("[data-open-epilogue]").forEach((btn) =>
-    btn.addEventListener("click", openEpilogue)
+  document.querySelectorAll("[data-open-preface]").forEach((btn) =>
+    btn.addEventListener("click", openPreface)
   );
-  document.querySelectorAll("[data-close-epilogue]").forEach((el) =>
-    el.addEventListener("click", closeEpilogue)
+  document.querySelectorAll("[data-close-preface]").forEach((el) =>
+    el.addEventListener("click", closePreface)
   );
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !modal.hidden) closeEpilogue();
+    if (e.key === "Escape" && !modal.hidden) closePreface();
   });
 
   /* ---------- v2 scaffold (NOT active) ------------------------

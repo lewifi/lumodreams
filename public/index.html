@@ -9,7 +9,9 @@
 
 <!--
   Lumo Dreams — interactive story, v1.
-  Structure: one <section class="chapter"> per full-viewport screen, scroll-snapped.
+  Flow (scroll-snapped, one full-viewport <section> each):
+    cover → 5 chapters → epilogue → "The End".
+  The preface is an optional modal, offered on the cover and on "The End".
   Each chapter carries a looping muted video behind a scrim; text sits on top.
 
   Per-chapter text legibility is tuned with CSS custom properties set inline on
@@ -32,28 +34,14 @@
     <div class="content cover-content">
       <p class="byline">A story by Lewi Hirvelä</p>
       <div class="cover-actions">
-        <a class="btn btn-primary" href="#preface">Begin the story</a>
-        <button class="btn btn-ghost" type="button" data-open-epilogue>Read the epilogue</button>
+        <a class="btn btn-primary" href="#ch1">Begin the story</a>
+        <button class="btn btn-ghost" type="button" data-open-preface>Read the preface</button>
       </div>
-      <a class="scroll-hint" href="#preface" aria-hidden="true">↓</a>
+      <a class="scroll-hint" href="#ch1" aria-hidden="true">↓</a>
     </div>
   </section>
 
-  <!-- ===== PREFACE (no video — aurora/cover backdrop) ===== -->
-  <section class="chapter preface" id="preface" data-chapter="0" aria-label="Preface">
-    <div class="cover-art static-aurora"></div>
-    <div class="scrim scrim-strong"></div>
-    <div class="content narrow">
-      <p class="eyebrow">Preface</p>
-      <h2>Dreams of Being a Real Human</h2>
-      <div class="prose">
-        <p><em>A story inspired by the Nordic Lapland, Hong Kong and Australia, in three dogs and one human heart, with love from Lumi the Border Collie, Susi the Husky, Molly the Cavoodle, and me.</em></p>
-        <p>I lived for seven months in my father’s home town of Ivalo in Finnish Lapland and three more years elsewhere in Finland. Winter there can be fierce, with temperatures falling to forty below zero. The air bites at your lungs, the land lies buried beneath deep snow, and the polar nights wrap the world in a long, blue darkness. Yet the sky can surprise you with extraordinary beauty. Sometimes the aurora ripples in green and violet, dancing like ribbons against the night.</p>
-        <p>My father grew up as a reindeer herder. He skied through the forests and fells for hundreds of kilometres, relying on instinct to navigate the endless whiteness. From him I learned how people and animals survive in such a place, and how they thrive too.</p>
-        <p>I have lived with six dogs, border collies and huskies, and now a cavoodle, each one with its own voice and spirit. They taught me about loyalty, curiosity, and love without a single word spoken. This story of Lumo, an Australian Shepherd puppy who longed to be human, is rooted in those experiences. The events are imagined, but the feelings belong to the Arctic I came to know.</p>
-      </div>
-    </div>
-  </section>
+  <!-- Preface is now an optional modal (see #preface below), offered on the cover. -->
 
   <!-- ===== 1 · A PUPPY'S WORLD ===== -->
   <section class="chapter" id="ch1" data-chapter="1" data-video="videos/a-puppys-world.mp4" aria-label="Chapter one: A Puppy’s World">
@@ -126,6 +114,22 @@
     </div>
   </section>
 
+  <!-- ===== EPILOGUE (in scroll flow, before "The End") ===== -->
+  <section class="chapter" id="epilogue-ch" data-chapter="epilogue" data-video="videos/epilogue.mp4" aria-label="Epilogue">
+    <div class="scrim"></div>
+    <div class="content">
+      <p class="eyebrow">Epilogue</p>
+      <h2>Spring Returns</h2>
+      <div class="prose">
+        <p>Spring returned slowly. Snow slid from rooftops, rivers began to run again, and the scent of pine and birch filled the warming air. The fields turned green. Soon the midnight sun rose and the world glowed with gentle, endless daylight.</p>
+        <p>The cows were taken to pasture, and Lumo ran across the fields with the girls at her heels. She no longer stood on two legs or squeezed into their clothes. She was simply herself, joyous and full of life.</p>
+        <p>In the evenings, the family often told the story of the night Lumo wandered into the cold but found her way home. The youngest girl always ended the tale by wrapping her arms around Lumo and whispering, <em>You are the best dog in the world.</em></p>
+        <p>Lumo did not need to understand the words. She felt them in every quiet moment, in every warm touch, and in the love that embraced her like home.</p>
+        <p class="coda">She was home.<br />She was loved.<br />And she was exactly what she was meant to be.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== THE END ===== -->
   <section class="chapter theend" id="theend" data-chapter="end" aria-label="The End">
     <div class="cover-art"></div>
@@ -133,7 +137,7 @@
     <div class="content theend-content">
       <p class="theend-title">The End</p>
       <div class="theend-actions">
-        <button class="btn btn-primary" type="button" data-open-epilogue>Read the epilogue</button>
+        <button class="btn btn-primary" type="button" data-open-preface>Read the preface</button>
         <a class="btn btn-ghost" href="#cover">Back to the beginning</a>
       </div>
     </div>
@@ -141,22 +145,21 @@
 
 </main>
 
-<!-- ===== EPILOGUE MODAL (offered on cover and at the end; not in scroll flow) ===== -->
-<div class="modal" id="epilogue" role="dialog" aria-modal="true" aria-labelledby="epilogue-title" hidden>
-  <div class="modal-backdrop" data-close-epilogue></div>
+<!-- ===== PREFACE MODAL (optional; offered on the cover and at the end) ===== -->
+<div class="modal" id="preface" role="dialog" aria-modal="true" aria-labelledby="preface-title" hidden>
+  <div class="modal-backdrop" data-close-preface></div>
   <div class="modal-card" role="document">
-    <video class="modal-video" data-video="videos/epilogue.mp4" muted loop autoplay playsinline preload="none"></video>
+    <div class="cover-art static-aurora" aria-hidden="true"></div>
     <div class="modal-scrim"></div>
-    <button class="modal-close" type="button" data-close-epilogue aria-label="Close epilogue">×</button>
+    <button class="modal-close" type="button" data-close-preface aria-label="Close preface">×</button>
     <div class="modal-body">
-      <p class="eyebrow">Epilogue</p>
-      <h2 id="epilogue-title">Spring Returns</h2>
+      <p class="eyebrow">Preface</p>
+      <h2 id="preface-title">Dreams of Being a Real Human</h2>
       <div class="prose">
-        <p>Spring returned slowly. Snow slid from rooftops, rivers began to run again, and the scent of pine and birch filled the warming air. The fields turned green. Soon the midnight sun rose and the world glowed with gentle, endless daylight.</p>
-        <p>The cows were taken to pasture, and Lumo ran across the fields with the girls at her heels. She no longer stood on two legs or squeezed into their clothes. She was simply herself, joyous and full of life.</p>
-        <p>In the evenings, the family often told the story of the night Lumo wandered into the cold but found her way home. The youngest girl always ended the tale by wrapping her arms around Lumo and whispering, <em>You are the best dog in the world.</em></p>
-        <p>Lumo did not need to understand the words. She felt them in every quiet moment, in every warm touch, and in the love that embraced her like home.</p>
-        <p class="coda">She was home.<br />She was loved.<br />And she was exactly what she was meant to be.</p>
+        <p><em>A story inspired by the Nordic Lapland, Hong Kong and Australia, in three dogs and one human heart, with love from Lumi the Border Collie, Susi the Husky, Molly the Cavoodle, and me.</em></p>
+        <p>I lived for seven months in my father’s home town of Ivalo in Finnish Lapland and three more years elsewhere in Finland. Winter there can be fierce, with temperatures falling to forty below zero. The air bites at your lungs, the land lies buried beneath deep snow, and the polar nights wrap the world in a long, blue darkness. Yet the sky can surprise you with extraordinary beauty. Sometimes the aurora ripples in green and violet, dancing like ribbons against the night.</p>
+        <p>My father grew up as a reindeer herder. He skied through the forests and fells for hundreds of kilometres, relying on instinct to navigate the endless whiteness. From him I learned how people and animals survive in such a place, and how they thrive too.</p>
+        <p>I have lived with six dogs, border collies and huskies, and now a cavoodle, each one with its own voice and spirit. They taught me about loyalty, curiosity, and love without a single word spoken. This story of Lumo, an Australian Shepherd puppy who longed to be human, is rooted in those experiences. The events are imagined, but the feelings belong to the Arctic I came to know.</p>
       </div>
     </div>
   </div>
