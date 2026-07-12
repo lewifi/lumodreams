@@ -17,6 +17,7 @@
 
   const BASE = "audio/";
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const normWord = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
   let manifest = [];           // ordered chapter ids that have audio
   let enabled = false;         // narration mode on/off
@@ -71,6 +72,7 @@
 
   function enable() {
     enabled = true;
+    document.body.classList.add("narrating"); // app.js: narration owns morph timing
     setToggleLabel();
     const target =
       currentVisible && manifest.includes(currentVisible) ? currentVisible : manifest[0];
@@ -80,6 +82,7 @@
 
   function disable() {
     enabled = false;
+    document.body.classList.remove("narrating");
     setToggleLabel();
     stop();
     clearHighlights();
@@ -137,11 +140,20 @@
     const spans = Array.from(section.querySelectorAll(".prose .word"));
     resetSpans(spans);
 
+    // Video morph: start fresh on the primary clip, note when to crossfade.
+    section.classList.remove("is-morphed");
+    let morphAt = null;
+    const cue = section.dataset.morphCue;
+    if (cue && section.dataset.videoMorph) {
+      const hit = data.words.find((w) => normWord(w.w) === normWord(cue));
+      if (hit) morphAt = hit.s;
+    }
+
     audio.src = BASE + id + ".wav";
     try {
       audio.currentTime = 0;
     } catch {}
-    playing = { id, spans, words: data.words, idx: -1, raf: 0 };
+    playing = { id, section, spans, words: data.words, idx: -1, morphAt, raf: 0 };
 
     try {
       await audio.play();
@@ -158,6 +170,11 @@
     if (!playing) return;
     const { words, spans } = playing;
     const t = audio.currentTime;
+    if (playing.morphAt != null && t >= playing.morphAt) {
+      if (window.__lumoTriggerMorph) window.__lumoTriggerMorph(playing.section);
+      else playing.section.classList.add("is-morphed");
+      playing.morphAt = null; // once
+    }
     let i = playing.idx;
     while (i + 1 < words.length && t >= words[i + 1].s) i++;
     // clamp to available spans (should match, but stay safe)
@@ -184,6 +201,7 @@
     } else {
       scrollToSection("theend"); // gentle close
       enabled = false;
+      document.body.classList.remove("narrating");
       setToggleLabel();
     }
   }

@@ -12,11 +12,9 @@
   /* ---------- Lazy, view-gated chapter videos ---------- */
   const chapters = Array.from(document.querySelectorAll(".chapter[data-video]"));
 
-  function mountVideo(section) {
-    if (section._video) return section._video;
-    const src = section.getAttribute("data-video");
+  function makeVideo(src, cls) {
     const v = document.createElement("video");
-    v.className = "bg";
+    v.className = cls;
     v.muted = true;            // required for autoplay
     v.loop = true;
     v.playsInline = true;
@@ -24,10 +22,35 @@
     v.setAttribute("aria-hidden", "true");
     v.preload = "auto";
     v.src = src;
-    // insert as the first child so the scrim/text stack above it
-    section.insertBefore(v, section.firstChild);
-    section._video = v;
     return v;
+  }
+
+  // Mounts the chapter's background video(s). A chapter may declare a second
+  // "morph" video (data-video-morph) that crossfades in over the first when the
+  // narration reaches a cue word (see narration.js) — or, without narration,
+  // after data-morph-delay ms in view.
+  function mountVideo(section) {
+    if (section._video) return section._video;
+    section._video = makeVideo(section.getAttribute("data-video"), "bg bg-primary");
+    section.insertBefore(section._video, section.firstChild); // under scrim/text
+    const morphSrc = section.getAttribute("data-video-morph");
+    if (morphSrc) {
+      section._videoMorph = makeVideo(morphSrc, "bg bg-morph");
+      // after the primary so it stacks above it and can fade in
+      section._video.insertAdjacentElement("afterend", section._videoMorph);
+    }
+    return section._video;
+  }
+
+  function playSectionVideos(section) {
+    [section._video, section._videoMorph].forEach((v) => {
+      if (!v) return;
+      const p = v.play();
+      if (p && p.catch) p.catch(() => {}); // ignore autoplay rejections
+    });
+  }
+  function pauseSectionVideos(section) {
+    [section._video, section._videoMorph].forEach((v) => v && v.pause());
   }
 
   const inView = new Set();
@@ -37,12 +60,14 @@
       const section = e.target;
       if (e.isIntersecting && e.intersectionRatio > 0.4) {
         inView.add(section);
-        const v = mountVideo(section);
-        const p = v.play();
-        if (p && p.catch) p.catch(() => {}); // ignore autoplay rejections
+        mountVideo(section);
+        playSectionVideos(section);
+        scheduleMorphFallback(section);
       } else {
         inView.delete(section);
-        if (section._video) section._video.pause();
+        pauseSectionVideos(section);
+        clearMorphFallback(section);
+        section.classList.remove("is-morphed"); // reset for next visit
       }
     }
   }, { threshold: [0, 0.4, 0.75] });
@@ -51,6 +76,30 @@
 
   // Warm the very first chapter video eagerly so scrolling in is instant.
   if (chapters[0]) mountVideo(chapters[0]);
+
+  /* ---------- Video morph ---------- */
+  // Accurate trigger is narration-driven (narration.js calls triggerMorph at the
+  // cue word). Fallback: if narration isn't active, morph after data-morph-delay.
+  function triggerMorph(section) {
+    if (section && section._videoMorph) section.classList.add("is-morphed");
+  }
+  window.__lumoTriggerMorph = triggerMorph;
+
+  function scheduleMorphFallback(section) {
+    if (!section.getAttribute("data-video-morph")) return;
+    if (document.body.classList.contains("narrating")) return; // narration owns it
+    if (section._morphTimer || section.classList.contains("is-morphed")) return;
+    const delay = parseInt(section.getAttribute("data-morph-delay") || "16000", 10);
+    section._morphTimer = setTimeout(() => {
+      if (!document.body.classList.contains("narrating")) triggerMorph(section);
+    }, delay);
+  }
+  function clearMorphFallback(section) {
+    if (section._morphTimer) {
+      clearTimeout(section._morphTimer);
+      section._morphTimer = null;
+    }
+  }
 
   /* ---------- Preface modal (optional; offered on cover + "The End") ---------- */
   const modal = document.getElementById("preface");

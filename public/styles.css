@@ -74,6 +74,15 @@ body {
   object-fit: cover;
   z-index: 0;
 }
+/* Video morph: a second clip fades in over the first at a story cue. */
+.chapter video.bg-morph {
+  opacity: 0;
+  transition: opacity 1600ms ease;
+}
+.chapter.is-morphed video.bg-morph { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .chapter video.bg-morph { transition: opacity 400ms ease; }
+}
 
 .cover-art {
   /* default backdrop = title-free "back" art (used by the preface modal) */

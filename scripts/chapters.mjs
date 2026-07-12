@@ -15,6 +15,21 @@
 
 export const chapters = [
   {
+    // Cover: spoken title + author. There is no on-screen prose to highlight
+    // (the title lives in the cover image), so this simply plays as an intro
+    // before the narration flows into chapter one.
+    id: "cover",
+    title: "Lumo Dreams of Being a Real Human",
+    mood: "an inviting, magical opening — the hush before a bedtime story",
+    paragraphs: [
+      {
+        text: "Lumo Dreams of Being a Real Human. By Lewi Hirvelä.",
+        mood: "warm, welcoming wonder",
+        expression: "gentle and unhurried; a soft pause after the title; pronounce ‘Hirvelä’ as HEER-veh-lah"
+      }
+    ]
+  },
+  {
     id: "ch1",
     title: "A Puppy’s World",
     mood: "warm, cosy, pastoral wonder — the safe world of a beloved puppy",
