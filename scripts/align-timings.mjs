@@ -146,10 +146,21 @@ async function main() {
     process.exit(1);
   }
 
+  const args = process.argv.slice(2);
+
   console.log("Analyzing audio assets directory …");
-  const files = readdirSync(AUDIO_DIR).filter(
+  let files = readdirSync(AUDIO_DIR).filter(
     (f) => f.endsWith(".json") && f !== "manifest.json"
   );
+
+  if (args.length > 0) {
+    const requested = new Set(args.map(arg => {
+      let name = arg.toLowerCase();
+      if (!name.endsWith(".json")) name += ".json";
+      return name;
+    }));
+    files = files.filter(f => requested.has(f.toLowerCase()));
+  }
 
   console.log(`Found ${files.length} tracks to align.\n`);
 
