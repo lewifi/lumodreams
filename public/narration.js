@@ -24,6 +24,7 @@
   let playing = null;          // { id, spans, words, idx, raf }
   let loadingId = null;        // guards against double-starts
   let currentVisible = null;   // most-visible narratable section id
+  let suppressObserverUntil = 0; // ignore observer switches during programmatic scroll
   const timingCache = new Map();
 
   const audio = new Audio();
@@ -309,6 +310,10 @@
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) ratios.set(e.target.id, e.isIntersecting ? e.intersectionRatio : 0);
+        // During an auto-advance scroll the outgoing section is transiently the
+        // "most visible" — ignore switches until the programmatic scroll settles,
+        // so we don't double-start the next chapter's narration.
+        if (performance.now() < suppressObserverUntil) return;
         let best = null, bestR = 0;
         for (const id of manifest) {
           const r = ratios.get(id) || 0;
@@ -349,6 +354,7 @@
   /* ---------- Play / highlight ---------- */
   async function playSection(id) {
     if (playing && playing.id === id) return;
+    if (loadingId === id) return; // already loading this section — don't start twice
     loadingId = id;
     stop();
 
@@ -534,7 +540,11 @@
 
   function scrollToSection(id) {
     const s = document.getElementById(id);
-    if (s) s.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    if (s) {
+      // Mute observer-driven section switches for the duration of this scroll.
+      suppressObserverUntil = performance.now() + (reduceMotion ? 200 : 1500);
+      s.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    }
   }
 
   /* ---------- Slow, custom smooth scroll ---------- */
