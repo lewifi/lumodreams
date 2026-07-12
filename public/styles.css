@@ -105,12 +105,6 @@ body {
             rgba(6,10,22,0.7) 45%,
             rgba(6,10,22,0.88) 100%);
 }
-/* "The End": darken the empty left sky so the words read there */
-.scrim-left {
-  background:
-    linear-gradient(90deg, rgba(6,10,22,0.72) 0%, rgba(6,10,22,0.35) 42%, rgba(6,10,22,0) 68%),
-    linear-gradient(180deg, rgba(6,10,22,0.25) 0%, rgba(6,10,22,0.45) 100%);
-}
 
 /* ---------- Text block ---------- */
 .content {
@@ -122,6 +116,29 @@ body {
   text-shadow: var(--halo);
 }
 .content.narrow { max-width: 40rem; }
+
+/* Prose chapters: text lives in a frosted reading panel offset to the left,
+   so the centred video subject stays visible on the right and the words
+   stay legible over anything. (Cover and "The End" are excluded.) */
+.chapter:not(.cover):not(.theend) {
+  justify-content: flex-start;
+  /* lighter, left-weighted scrim — the panel carries legibility, so the
+     video shows through more, brightest on the right where the subject sits */
+  --scrim: linear-gradient(90deg,
+            rgba(6,10,22,0.55) 0%,
+            rgba(6,10,22,0.28) 42%,
+            rgba(6,10,22,0.06) 100%);
+}
+.chapter:not(.cover):not(.theend) .content {
+  max-width: 34rem;
+  padding: clamp(1.5rem, 3.5vw, 2.4rem) clamp(1.5rem, 3.5vw, 2.6rem);
+  border-radius: 20px;
+  background: rgba(8, 13, 28, 0.46);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  backdrop-filter: blur(12px) saturate(1.1);
+}
 
 .eyebrow {
   font-family: var(--font-sans);
@@ -190,13 +207,18 @@ body {
 }
 
 /* ---------- The End ---------- */
-.theend-content {
-  align-self: flex-start;  /* sit high, in the clear sky */
-  margin-top: 6vh;
-  margin-right: auto;      /* pull words into the empty left sky */
-  text-align: left;
-  max-width: 26rem;
+.theend .scrim {
+  background: radial-gradient(ellipse 70% 60% at 50% 45%,
+              rgba(6,10,22,0.62) 0%,
+              rgba(6,10,22,0.34) 48%,
+              rgba(6,10,22,0.12) 100%);
 }
+.theend-content {
+  align-self: center;      /* middle centre */
+  text-align: center;
+  max-width: 30rem;
+}
+.theend-actions { align-items: center; }
 .theend-title {
   font-family: var(--font-serif);
   font-size: clamp(2.6rem, 9vw, 5rem);
