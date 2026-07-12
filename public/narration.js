@@ -648,7 +648,8 @@
       }
     }
     // Main body track
-    candidateTracks.push({ suffix: "", selector: ".prose .word" });
+    const bodySelector = id === "theend" ? ".theend-title .word" : ".prose .word";
+    candidateTracks.push({ suffix: "", selector: bodySelector });
 
     // Fetch timing data for all candidate tracks that are actually generated
     const tracks = [];

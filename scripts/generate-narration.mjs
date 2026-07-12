@@ -312,7 +312,7 @@ async function generateChapter(ch, silence, force, requestedTracks = null) {
   console.log(`▶ ${ch.id} — ${ch.title}`);
   
   const subTracks = [];
-  if (ch.id === "cover") {
+  if (ch.id === "cover" || ch.id === "theend") {
     subTracks.push({ suffix: "", paragraphs: ch.paragraphs });
   } else {
     subTracks.push({ suffix: "-eyebrow", paragraphs: [ch.paragraphs[0]] });
