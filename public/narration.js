@@ -282,7 +282,7 @@
         if (rect.bottom > viewportHeight * 0.75 || rect.top < viewportHeight * 0.25) {
           const isInModal = playing.section.closest(".modal");
           if (isInModal || playing.section.offsetHeight > viewportHeight) {
-            spans[maxI].scrollIntoView({ behavior: "smooth", block: "center" });
+            scrollWordIntoView(spans[maxI]);
           }
         }
       }
@@ -341,5 +341,80 @@
   function scrollToSection(id) {
     const s = document.getElementById(id);
     if (s) s.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  }
+
+  /* ---------- Slow, custom smooth scroll ---------- */
+  let activeScrollAnimation = null;
+
+  function animateScrollTo(container, targetScrollTop, duration = 800) {
+    if (activeScrollAnimation && activeScrollAnimation.container === container) {
+      cancelAnimationFrame(activeScrollAnimation.rafId);
+    }
+
+    const startScrollTop = container.scrollTop;
+    const distance = targetScrollTop - startScrollTop;
+    if (Math.abs(distance) < 2) return; // already close enough
+
+    const startTime = performance.now();
+
+    function step(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing: easeInOutQuad
+      const ease = progress < 0.5 
+        ? 2 * progress * progress 
+        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+      container.scrollTop = startScrollTop + distance * ease;
+
+      if (progress < 1) {
+        activeScrollAnimation.rafId = requestAnimationFrame(step);
+      } else {
+        activeScrollAnimation = null;
+      }
+    }
+
+    activeScrollAnimation = {
+      container,
+      rafId: requestAnimationFrame(step)
+    };
+  }
+
+  function getScrollContainer(element) {
+    const isInModal = element.closest(".modal");
+    if (isInModal) {
+      return isInModal.querySelector(".modal-body") || isInModal;
+    }
+    return document.getElementById("story");
+  }
+
+  function getOffsetTopRelativeTo(element, ancestor) {
+    let offsetTop = 0;
+    let curr = element;
+    while (curr && curr !== ancestor) {
+      offsetTop += curr.offsetTop;
+      curr = curr.offsetParent;
+    }
+    return offsetTop;
+  }
+
+  function scrollWordIntoView(wordSpan) {
+    const container = getScrollContainer(wordSpan);
+    if (!container) return;
+
+    const offsetTop = getOffsetTopRelativeTo(wordSpan, container);
+    const targetScrollTop = Math.max(0, Math.min(
+      offsetTop - (container.clientHeight / 2) + (wordSpan.clientHeight / 2),
+      container.scrollHeight - container.clientHeight
+    ));
+
+    if (reduceMotion) {
+      container.scrollTop = targetScrollTop;
+      return;
+    }
+
+    // Slow and smooth animation (800ms)
+    animateScrollTo(container, targetScrollTop, 800);
   }
 })();
