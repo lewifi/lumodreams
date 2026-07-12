@@ -316,6 +316,13 @@ body.narrating .narrate-scrim {
   .narrate-panel.is-intro { animation: none; }
 }
 
+/* ---------- Cover & The End stacking ---------- */
+.chapter.cover,
+.chapter.theend {
+  position: relative;
+  z-index: 35;
+}
+
 /* ---------- Cover ---------- */
 .cover .scrim {
   background: linear-gradient(180deg,
@@ -478,7 +485,7 @@ body.modal-open { overflow: hidden; }
     margin-bottom: -40dvh;
     z-index: 11;
     pointer-events: none;
-    background: linear-gradient(180deg, rgba(6,10,22,0.1) 0%, rgba(6,10,22,0.5) 100%);
+    background: transparent;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   }
 
