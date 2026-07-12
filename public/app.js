@@ -44,10 +44,12 @@
 
   function playSectionVideos(section) {
     const isNarrating = document.body.classList.contains("narrating");
+    const isMuted = document.body.classList.contains("music-muted");
+    const isPaused = document.body.classList.contains("narration-paused");
     [section._video, section._videoMorph].forEach((v) => {
       if (!v) return;
-      v.muted = !isNarrating;
-      v.volume = 0.3;
+      v.muted = !isNarrating || isMuted || isPaused;
+      v.volume = (isNarrating && !isMuted && !isPaused) ? 0.04 : 0;
       const p = v.play();
       if (p && p.catch) p.catch(() => {}); // ignore autoplay rejections
     });

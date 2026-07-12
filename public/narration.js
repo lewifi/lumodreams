@@ -57,9 +57,12 @@
   const MUSIC_LOWPASS_HZ = 1200;  // roll off highs so the music is warm/soft and sits back
   const MUSIC_FADEOUT_MS = 25000; // long gradual fade as chapter 1 begins
 
-  // Route the two music elements through a shared low-pass filter (Web Audio).
+  // Route the audio elements through a shared low-pass filter (Web Audio).
   // Must be created after a user gesture (enable), and only once per element.
   let audioCtx = null;
+  let lpFilter = null;
+  const activeVideoFades = new Map();
+
   function ensureMusicGraph() {
     if (audioCtx) {
       if (audioCtx.state === "suspended") audioCtx.resume();
@@ -67,14 +70,27 @@
     }
     try {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const lp = audioCtx.createBiquadFilter();
-      lp.type = "lowpass";
-      lp.frequency.value = MUSIC_LOWPASS_HZ;
-      lp.connect(audioCtx.destination);
-      [musicA, musicB].forEach((el) => audioCtx.createMediaElementSource(el).connect(lp));
+      lpFilter = audioCtx.createBiquadFilter();
+      lpFilter.type = "lowpass";
+      lpFilter.frequency.value = MUSIC_LOWPASS_HZ;
+      lpFilter.connect(audioCtx.destination);
+      [musicA, musicB].forEach((el) => audioCtx.createMediaElementSource(el).connect(lpFilter));
       if (audioCtx.state === "suspended") audioCtx.resume();
     } catch (e) {
       audioCtx = null; // fall back to plain playback (no filter)
+      lpFilter = null;
+    }
+  }
+
+  function connectVideoToAudioGraph(v) {
+    if (!audioCtx || !lpFilter) return;
+    if (v._routedToWebAudio) return;
+    try {
+      const source = audioCtx.createMediaElementSource(v);
+      source.connect(lpFilter);
+      v._routedToWebAudio = true;
+    } catch (err) {
+      console.warn("Failed to connect video to Web Audio graph:", err);
     }
   }
 
@@ -241,6 +257,7 @@
           ambience.play().catch(() => {});
         }
       }
+      syncVideoVolumes(300);
     });
 
     // Preface modal narration: when read-along is on and the modal opens, narrate
@@ -337,15 +354,66 @@
     }
   }
 
-  function updateVideoMuteState() {
-    const shouldMute = !enabled || isPaused || isMusicMuted;
-    document.querySelectorAll(".chapter").forEach((section) => {
-      [section._video, section._videoMorph].forEach((v) => {
-        if (v) {
-          v.muted = shouldMute;
-          v.volume = 0.3; // soft background sfx level
-        }
+  function fadeVideoVolume(section, targetVol, duration = 1500) {
+    if (!section) return;
+    
+    if (activeVideoFades.has(section)) {
+      clearInterval(activeVideoFades.get(section));
+      activeVideoFades.delete(section);
+    }
+
+    const videos = [section._video, section._videoMorph].filter(Boolean);
+    if (videos.length === 0) return;
+
+    // Connect to Web Audio graph (low-pass filter) once active
+    videos.forEach((v) => connectVideoToAudioGraph(v));
+
+    const startVols = videos.map((v) => (v.muted ? 0 : v.volume));
+    
+    if (targetVol > 0) {
+      videos.forEach((v) => {
+        v.muted = false;
+        if (v.volume === 0) v.volume = 0;
       });
+    }
+
+    const steps = 15;
+    const intervalTime = duration / steps;
+    let step = 0;
+
+    const interval = setInterval(() => {
+      step++;
+      const progress = step / steps;
+      
+      videos.forEach((v, idx) => {
+        const start = startVols[idx];
+        const currentVal = start + (targetVol - start) * progress;
+        v.volume = Math.max(0, Math.min(1, currentVal));
+      });
+
+      if (step >= steps) {
+        clearInterval(interval);
+        activeVideoFades.delete(section);
+        
+        videos.forEach((v) => {
+          v.volume = targetVol;
+          if (targetVol === 0) {
+            v.muted = true;
+          }
+        });
+      }
+    }, intervalTime);
+
+    activeVideoFades.set(section, interval);
+  }
+
+  function syncVideoVolumes(fadeDuration = 1500) {
+    const activeSectionId = currentVisible;
+    const isVoicePlaying = enabled && !isPaused && !isMusicMuted && !document.hidden;
+    
+    document.querySelectorAll(".chapter").forEach((section) => {
+      const targetVol = (section.id === activeSectionId && isVoicePlaying) ? MUSIC_VOL : 0;
+      fadeVideoVolume(section, targetVol, fadeDuration);
     });
   }
 
@@ -418,7 +486,7 @@
         }
       }
     }
-    updateVideoMuteState();
+    syncVideoVolumes();
   }
 
   function getActiveSection() {
@@ -458,7 +526,7 @@
     const target = getActiveSection() || manifest[0];
     currentVisible = target;
     playSection(target); // starts section audio + music/ambience (updateMusic)
-    updateVideoMuteState();
+    syncVideoVolumes();
   }
 
   function disable() {
@@ -475,7 +543,7 @@
     clearHighlights();
     fadeOutMusic();
     setAmbience(0);
-    updateVideoMuteState();
+    syncVideoVolumes();
   }
 
   /* ---------- Which chapter is in view ---------- */
