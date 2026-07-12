@@ -62,6 +62,30 @@ function stylePrompt(chapter, para) {
 }
 const SAMPLE_RATE = 24000; // Gemini TTS PCM output: 24 kHz, 16-bit, mono
 const SILENCE_MS = 450; // pause inserted between paragraphs
+const SENTENCE_GAP_MS = 220; // pause inserted between sentences within a paragraph
+
+// Split a paragraph into sentence units, matching the frontend's split
+// (/([.!?]\s+)/). Leading [tags] stay with the following sentence. Returns
+// { tts } (with tags, sent to the model) and { w } (clean text, stored + shown).
+// One unit per frontend sentence span, so timings line up 1:1.
+function splitSentences(text) {
+  const parts = text.split(/([.!?]\s+)/);
+  const raw = [];
+  let cur = "";
+  for (let i = 0; i < parts.length; i++) {
+    if (!parts[i]) continue;
+    cur += parts[i];
+    if (i % 2 === 1) { raw.push(cur); cur = ""; } // odd index = sentence-ending delimiter
+  }
+  if (cur.trim()) raw.push(cur);
+  const units = [];
+  for (const u of raw) {
+    const w = u.replace(/\[[^\]]*\]/g, "").replace(/\s+/g, " ").trim();
+    if (w.length === 0) { if (units.length) units[units.length - 1].tts += " " + u.trim(); continue; }
+    units.push({ tts: u.trim(), w });
+  }
+  return units;
+}
 // Free-tier TTS is ~3 requests/min → ~20s between calls. Override with GEMINI_TTS_DELAY_MS.
 const CALL_DELAY_MS = parseInt(process.env.GEMINI_TTS_DELAY_MS || "20000", 10);
 
@@ -344,22 +368,32 @@ async function generateChapter(ch, silence, force, requestedTracks = null) {
     const pcmChunks = [];
     const words = [];
     let cursorSamples = 0;
+    const sentenceGap = silenceBuffer(SENTENCE_GAP_MS);
 
-    for (let p = 0; p < track.paragraphs.length; p++) {
-      const para = track.paragraphs[p];
-      process.stdout.write(`    · paragraph ${p + 1}/${track.paragraphs.length} … `);
-      const pcm = await synthParagraph(ch, para);
+    // Flatten the track into sentence units, remembering paragraph ends.
+    const flat = [];
+    track.paragraphs.forEach((para, p) => {
+      const units = splitSentences(para.text);
+      units.forEach((u, i) => flat.push({ ...u, para, paraEnd: i === units.length - 1, p }));
+    });
+
+    for (let k = 0; k < flat.length; k++) {
+      const unit = flat[k];
+      process.stdout.write(`    · sentence ${k + 1}/${flat.length} … `);
+      // Synthesize this sentence on its own → we know its exact length (= exact timing).
+      const pcm = await synthParagraph(ch, { text: unit.tts, mood: unit.para.mood, expression: unit.para.expression });
       const dur = pcm.length / 2 / SAMPLE_RATE;
       const t0 = cursorSamples / SAMPLE_RATE;
-      words.push(...paragraphTimings(para.text, t0, dur));
+      words.push({ w: unit.w, s: +t0.toFixed(3), e: +(t0 + dur).toFixed(3) });
       pcmChunks.push(pcm);
       cursorSamples += pcm.length / 2;
-      if (p < track.paragraphs.length - 1) {
-        pcmChunks.push(silence);
-        cursorSamples += silence.length / 2;
-      }
       console.log(`${dur.toFixed(1)}s`);
       await sleep(CALL_DELAY_MS);
+      if (k < flat.length - 1) {
+        const gap = unit.paraEnd ? silence : sentenceGap; // longer pause at paragraph ends
+        pcmChunks.push(gap);
+        cursorSamples += gap.length / 2;
+      }
     }
 
     const data = Buffer.concat(pcmChunks);
