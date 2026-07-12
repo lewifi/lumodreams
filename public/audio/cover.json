@@ -1,1 +1,17 @@
-{"id":"cover","voice":"Leda","duration":7.848,"words":[{"w":"Lumo Dreams of Being a Real Human.","s":0,"e":3.792},{"w":"Story by Lewi Hirvelä.","s":3.792,"e":7.848}]}
+{
+  "id": "cover",
+  "voice": "Leda",
+  "duration": 7.848,
+  "words": [
+    {
+      "w": "Lumo Dreams of Being a Real Human.",
+      "s": 0,
+      "e": 4.61
+    },
+    {
+      "w": "Story by Lewi Hirvelä.",
+      "s": 5.95,
+      "e": 8.04
+    }
+  ]
+}

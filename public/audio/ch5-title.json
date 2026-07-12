@@ -1,1 +1,12 @@
-{"id":"ch5-title","voice":"Leda","duration":1.536,"words":[{"w":"The Realisation","s":0,"e":1.536}]}
+{
+  "id": "ch5-title",
+  "voice": "Leda",
+  "duration": 1.536,
+  "words": [
+    {
+      "w": "The Realisation",
+      "s": 0,
+      "e": 2.41
+    }
+  ]
+}

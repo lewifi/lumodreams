@@ -1,1 +1,62 @@
-{"id":"ch3","voice":"Leda","duration":98.616,"words":[{"w":"As the cold deepened and the polar nights crept in,  stretching across the days with bluish twilight during the day and darkness at night, Lumo tried harder than ever to be human.","s":0,"e":16.238},{"w":"She climbed onto tables searching for snacks and was scolded for it.","s":16.238,"e":22.782},{"w":"She squeezed herself into the girls’ clothes, tumbling over in sleeves that tangled around her paws.","s":22.782,"e":32.31},{"w":"She jumped on chairs and sat at the dinner table as politely as she could,  but was told to get down.","s":32.31,"e":42.831},{"w":"The family grew tired of the mischievous puppy.","s":43.281,"e":48.707},{"w":"The youngest girl was still upset about her torn blanket,  which made Lumo’s heart ache.","s":48.707,"e":56.371},{"w":"She felt she belonged nowhere.","s":56.371,"e":59.56},{"w":"Too clumsy to be human,  too restless to be an ordinary dog.","s":59.56,"e":67.099},{"w":"One particularly cold night, feeling confused and left out, she slipped through a gap in the fence and wandered into the darkness.","s":67.549,"e":80.804},{"w":"Snow drifted down gently, softening the world into a quiet dream.","s":80.804,"e":86.603},{"w":"The land around her was one of the most remote places in the world,  wide and silent beneath the long polar night.","s":86.603,"e":98.616}]}
+{
+  "id": "ch3",
+  "voice": "Leda",
+  "duration": 98.616,
+  "words": [
+    {
+      "w": "As the cold deepened and the polar nights crept in,  stretching across the days with bluish twilight during the day and darkness at night, Lumo tried harder than ever to be human.",
+      "s": 0,
+      "e": 18.17
+    },
+    {
+      "w": "She climbed onto tables searching for snacks and was scolded for it.",
+      "s": 18.82,
+      "e": 24.1
+    },
+    {
+      "w": "She squeezed herself into the girls’ clothes, tumbling over in sleeves that tangled around her paws.",
+      "s": 24.62,
+      "e": 32.32
+    },
+    {
+      "w": "She jumped on chairs and sat at the dinner table as politely as she could,  but was told to get down.",
+      "s": 32.74,
+      "e": 40.85
+    },
+    {
+      "w": "The family grew tired of the mischievous puppy.",
+      "s": 41.34,
+      "e": 45.71
+    },
+    {
+      "w": "The youngest girl was still upset about her torn blanket,  which made Lumo’s heart ache.",
+      "s": 46.52,
+      "e": 55.49
+    },
+    {
+      "w": "She felt she belonged nowhere.",
+      "s": 56.44,
+      "e": 59.08
+    },
+    {
+      "w": "Too clumsy to be human,  too restless to be an ordinary dog.",
+      "s": 59.95,
+      "e": 66.83
+    },
+    {
+      "w": "One particularly cold night, feeling confused and left out, she slipped through a gap in the fence and wandered into the darkness.",
+      "s": 67.36,
+      "e": 79.28
+    },
+    {
+      "w": "Snow drifted down gently, softening the world into a quiet dream.",
+      "s": 80.08,
+      "e": 86.69
+    },
+    {
+      "w": "The land around her was one of the most remote places in the world,  wide and silent beneath the long polar night.",
+      "s": 87.24,
+      "e": 98.05
+    }
+  ]
+}

@@ -1,1 +1,102 @@
-{"id":"ch1","voice":"Leda","duration":153.48,"words":[{"w":"Lumo was a six-month-old Australian Shepherd puppy who lived on a small farm outside a quiet arctic town.","s":0,"e":9.959},{"w":"The farm was home to cows rather than sheep, which an Aussie would usually herd instead, though she did not mind.","s":9.959,"e":19.568},{"w":"The cows smelled warm and friendly, and the fields were full of flowers and scents she had not yet explored.","s":19.568,"e":28.481},{"w":"In summer, cloudberries glowed like tiny amber lanterns across the bushes, though she was not allowed to eat them.","s":28.481,"e":39.718},{"w":"The family who cared for her consisted of a hardworking father, a kind mother, and two lively daughters aged four and seven.","s":40.168,"e":52.917},{"w":"The girls adored Lumo and often napped with her curled between them.","s":52.917,"e":59.388},{"w":"She adored them just as much,  though her curiosity and tendency to be mischievous often tempted her to wriggle through small gaps in the fence to explore the surrounding fields.","s":59.388,"e":74.926},{"w":"But she always returned.","s":74.926,"e":77.212},{"w":"She loved the girls too deeply to stay away for long.","s":77.212,"e":82.87},{"w":"Each morning she watched the humans dress in warm clothes, share breakfast, and begin their day.","s":83.32,"e":91.535},{"w":"Lumo ate her dry food, sometimes with a tin of wet food mixed in.","s":91.535,"e":98.355},{"w":"Unofficially, the girls slipped her scraps of rye bread, cheese, cold meats, or a bit of boiled egg.","s":98.355,"e":107.267},{"w":"She could smell egg from the other side of the house and zoomed towards it every time.","s":107.267,"e":115.714},{"w":"As the season edged towards winter and the cold grew sharper, Lumo watched the girls wrap themselves in woollen layers.","s":116.164,"e":126.82},{"w":"Woven dog coats were uncommon in the region and the parents believed Lumo’s thick fur was enough.","s":126.82,"e":136.082},{"w":"Lumo was not so sure.","s":136.082,"e":138.368},{"w":"She wondered why she could not wear warm clothes too.","s":138.368,"e":143.095},{"w":"Perhaps humans were simply allowed more comforts.","s":143.095,"e":148.171},{"w":"Perhaps, she thought, she ought to become one herself.","s":148.171,"e":153.48}]}
+{
+  "id": "ch1",
+  "voice": "Leda",
+  "duration": 153.48,
+  "words": [
+    {
+      "w": "Lumo was a six-month-old Australian Shepherd puppy who lived on a small farm outside a quiet arctic town.",
+      "s": 0,
+      "e": 10.15
+    },
+    {
+      "w": "The farm was home to cows rather than sheep, which an Aussie would usually herd instead, though she did not mind.",
+      "s": 11.23,
+      "e": 19.33
+    },
+    {
+      "w": "The cows smelled warm and friendly, and the fields were full of flowers and scents she had not yet explored.",
+      "s": 20.35,
+      "e": 29.2
+    },
+    {
+      "w": "In summer, cloudberries glowed like tiny amber lanterns across the bushes, though she was not allowed to eat them.",
+      "s": 30.68,
+      "e": 39.5
+    },
+    {
+      "w": "The family who cared for her consisted of a hardworking father, a kind mother, and two lively daughters aged four and seven.",
+      "s": 39.99,
+      "e": 51.98
+    },
+    {
+      "w": "The girls adored Lumo and often napped with her curled between them.",
+      "s": 53.07,
+      "e": 58.33
+    },
+    {
+      "w": "She adored them just as much,  though her curiosity and tendency to be mischievous often tempted her to wriggle through small gaps in the fence to explore the surrounding fields.",
+      "s": 58.83,
+      "e": 72.33
+    },
+    {
+      "w": "But she always returned.",
+      "s": 73.18,
+      "e": 75.33
+    },
+    {
+      "w": "She loved the girls too deeply to stay away for long.",
+      "s": 75.76,
+      "e": 79.54
+    },
+    {
+      "w": "Each morning she watched the humans dress in warm clothes, share breakfast, and begin their day.",
+      "s": 80.25,
+      "e": 88.63
+    },
+    {
+      "w": "Lumo ate her dry food, sometimes with a tin of wet food mixed in.",
+      "s": 89.47,
+      "e": 95.27
+    },
+    {
+      "w": "Unofficially, the girls slipped her scraps of rye bread, cheese, cold meats, or a bit of boiled egg.",
+      "s": 95.96,
+      "e": 104.99
+    },
+    {
+      "w": "She could smell egg from the other side of the house and zoomed towards it every time.",
+      "s": 105.47,
+      "e": 112.56
+    },
+    {
+      "w": "As the season edged towards winter and the cold grew sharper, Lumo watched the girls wrap themselves in woollen layers.",
+      "s": 113.23,
+      "e": 124.95
+    },
+    {
+      "w": "Woven dog coats were uncommon in the region and the parents believed Lumo’s thick fur was enough.",
+      "s": 126.17,
+      "e": 134.19
+    },
+    {
+      "w": "Lumo was not so sure.",
+      "s": 135.21,
+      "e": 137.79
+    },
+    {
+      "w": "She wondered why she could not wear warm clothes too.",
+      "s": 138.68,
+      "e": 142.92
+    },
+    {
+      "w": "Perhaps humans were simply allowed more comforts.",
+      "s": 143.43,
+      "e": 147.88
+    },
+    {
+      "w": "Perhaps, she thought, she ought to become one herself.",
+      "s": 148.51,
+      "e": 153.33
+    }
+  ]
+}

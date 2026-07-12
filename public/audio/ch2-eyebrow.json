@@ -1,1 +1,12 @@
-{"id":"ch2-eyebrow","voice":"Leda","duration":1.296,"words":[{"w":"Chapter Two","s":0,"e":1.296}]}
+{
+  "id": "ch2-eyebrow",
+  "voice": "Leda",
+  "duration": 1.296,
+  "words": [
+    {
+      "w": "Chapter Two",
+      "s": 0,
+      "e": 1.112
+    }
+  ]
+}

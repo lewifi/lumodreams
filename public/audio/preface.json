@@ -1,1 +1,72 @@
-{"id":"preface","voice":"Leda","duration":132.528,"words":[{"w":"A story inspired by the Nordic Lapland, Hong Kong and Australia, in three dogs and one human heart, with love from Lumi the Border Collie, Susi the Husky, Molly the Cavoodle, and me.","s":0,"e":18.722},{"w":"I lived for seven months in my father’s home town of Ivalo in Finnish Lapland and three more years elsewhere in Finland.","s":19.172,"e":31.308},{"w":"Winter there can be fierce, with temperatures falling to forty below zero.","s":31.308,"e":40.089},{"w":"The air bites at your lungs, the land lies buried beneath deep snow, and the polar nights wrap the world in a long, blue darkness.","s":40.089,"e":51.107},{"w":"Yet the sky can surprise you with extraordinary beauty.","s":51.107,"e":56.906},{"w":"Sometimes the aurora ripples in green and violet, dancing like ribbons against the night.","s":56.906,"e":67.054},{"w":"My father grew up as a reindeer herder.","s":67.504,"e":71.812},{"w":"He skied through the forests and fells for hundreds of kilometres, relying on instinct to navigate the endless whiteness.","s":71.812,"e":83.575},{"w":"From him I learned how people and animals survive in such a place, and how they thrive too.","s":83.575,"e":93.35},{"w":"I have lived with six dogs, border collies and huskies, and now a cavoodle, each one with its own voice and spirit.","s":93.8,"e":105.191},{"w":"They taught me about loyalty, curiosity, and love without a single word spoken.","s":105.191,"e":112.853},{"w":"This story of Lumo, an Australian Shepherd puppy who longed to be human, is rooted in those experiences.","s":112.853,"e":123.498},{"w":"The events are imagined, but the feelings belong to the Arctic I came to know.","s":123.498,"e":132.528}]}
+{
+  "id": "preface",
+  "voice": "Leda",
+  "duration": 132.528,
+  "words": [
+    {
+      "w": "A story inspired by the Nordic Lapland, Hong Kong and Australia, in three dogs and one human heart, with love from Lumi the Border Collie, Susi the Husky, Molly the Cavoodle, and me.",
+      "s": 0,
+      "e": 22
+    },
+    {
+      "w": "I lived for seven months in my father’s home town of Ivalo in Finnish Lapland and three more years elsewhere in Finland.",
+      "s": 22.1,
+      "e": 33.3
+    },
+    {
+      "w": "Winter there can be fierce, with temperatures falling to forty below zero.",
+      "s": 34.7,
+      "e": 40.8
+    },
+    {
+      "w": "The air bites at your lungs, the land lies buried beneath deep snow, and the polar nights wrap the world in a long, blue darkness.",
+      "s": 41.7,
+      "e": 53
+    },
+    {
+      "w": "Yet the sky can surprise you with extraordinary beauty.",
+      "s": 54.8,
+      "e": 59.5
+    },
+    {
+      "w": "Sometimes the aurora ripples in green and violet, dancing like ribbons against the night.",
+      "s": 60.1,
+      "e": 66.8
+    },
+    {
+      "w": "My father grew up as a reindeer herder.",
+      "s": 67.5,
+      "e": 71.4
+    },
+    {
+      "w": "He skied through the forests and fells for hundreds of kilometres, relying on instinct to navigate the endless whiteness.",
+      "s": 72.1,
+      "e": 83.5
+    },
+    {
+      "w": "From him I learned how people and animals survive in such a place, and how they thrive too.",
+      "s": 84.4,
+      "e": 92.8
+    },
+    {
+      "w": "I have lived with six dogs, border collies and huskies, and now a cavoodle, each one with its own voice and spirit.",
+      "s": 93.3,
+      "e": 105.7
+    },
+    {
+      "w": "They taught me about loyalty, curiosity, and love without a single word spoken.",
+      "s": 106.5,
+      "e": 114.6
+    },
+    {
+      "w": "This story of Lumo, an Australian Shepherd puppy who longed to be human, is rooted in those experiences.",
+      "s": 116.1,
+      "e": 125.7
+    },
+    {
+      "w": "The events are imagined, but the feelings belong to the Arctic I came to know.",
+      "s": 126.5,
+      "e": 132.3
+    }
+  ]
+}

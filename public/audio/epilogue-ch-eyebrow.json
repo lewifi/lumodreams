@@ -1,1 +1,12 @@
-{"id":"epilogue-ch-eyebrow","voice":"Leda","duration":5.808,"words":[{"w":"Epilogue","s":0,"e":5.808}]}
+{
+  "id": "epilogue-ch-eyebrow",
+  "voice": "Leda",
+  "duration": 5.808,
+  "words": [
+    {
+      "w": "Epilogue",
+      "s": 0,
+      "e": 1.05
+    }
+  ]
+}

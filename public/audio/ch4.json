@@ -1,1 +1,87 @@
-{"id":"ch4","voice":"Leda","duration":107.76,"words":[{"w":"Lumo wandered for hours.","s":0,"e":3.131},{"w":"The snow lay deep beneath her paws and each laboured breath stung in the icy air.","s":3.131,"e":10.82},{"w":"The wind rustled through the trees like a distant whisper.","s":10.82,"e":16.436},{"w":"Her strength soon faded and she curled beneath a pine tree, nose tucked beneath her tail.","s":16.436,"e":26.197},{"w":"Her thick coat helped, but she was not warm.","s":26.197,"e":31.676},{"w":"When she woke again, the sky had transformed.","s":32.126,"e":36.914},{"w":"Above her, the aurora rippled in waves of green and violet.","s":36.914,"e":44.188},{"w":"It shimmered across the heavens as though the night itself had woken to watch over her.","s":44.188,"e":53.949},{"w":"Wonder warmed her more than the fur on her back.","s":53.949,"e":59.566},{"w":"She felt a small but brave return.","s":59.566,"e":64.63},{"w":"Step by slow step, guided by instinct and memory, she began to make her way home.","s":65.08,"e":74.012},{"w":"When she reached the house it was empty.","s":74.012,"e":78.386},{"w":"The family were out searching for her, calling her name across the fields.","s":78.386,"e":86.075},{"w":"Lumo couldn’t hear them so she turned instead to the barn.","s":86.075,"e":92.106},{"w":"Inside, the cows lay resting, warm bodies steaming in the cold.","s":92.106,"e":98.966},{"w":"She nestled between them, comforted by their calm breathing, and fell asleep.","s":98.966,"e":107.76}]}
+{
+  "id": "ch4",
+  "voice": "Leda",
+  "duration": 107.76,
+  "words": [
+    {
+      "w": "Lumo wandered for hours.",
+      "s": 0,
+      "e": 3.78
+    },
+    {
+      "w": "The snow lay deep beneath her paws and each laboured breath stung in the icy air.",
+      "s": 4.19,
+      "e": 12.39
+    },
+    {
+      "w": "The wind rustled through the trees like a distant whisper.",
+      "s": 13.25,
+      "e": 18.06
+    },
+    {
+      "w": "Her strength soon faded and she curled beneath a pine tree, nose tucked beneath her tail.",
+      "s": 19.38,
+      "e": 27.53
+    },
+    {
+      "w": "Her thick coat helped, but she was not warm.",
+      "s": 28.32,
+      "e": 32.22
+    },
+    {
+      "w": "When she woke again, the sky had transformed.",
+      "s": 33.64,
+      "e": 39.46
+    },
+    {
+      "w": "Above her, the aurora rippled in waves of green and violet.",
+      "s": 40.54,
+      "e": 46.54
+    },
+    {
+      "w": "It shimmered across the heavens as though the night itself had woken to watch over her.",
+      "s": 47.38,
+      "e": 54.34
+    },
+    {
+      "w": "Wonder warmed her more than the fur on her back.",
+      "s": 55.75,
+      "e": 59.94
+    },
+    {
+      "w": "She felt a small but brave return.",
+      "s": 60.84,
+      "e": 64.84
+    },
+    {
+      "w": "Step by slow step, guided by instinct and memory, she began to make her way home.",
+      "s": 65.75,
+      "e": 74.52
+    },
+    {
+      "w": "When she reached the house it was empty.",
+      "s": 76.53,
+      "e": 79.59
+    },
+    {
+      "w": "The family were out searching for her, calling her name across the fields.",
+      "s": 80.52,
+      "e": 86.4
+    },
+    {
+      "w": "Lumo couldn’t hear them so she turned instead to the barn.",
+      "s": 87.03,
+      "e": 91.56
+    },
+    {
+      "w": "Inside, the cows lay resting, warm bodies steaming in the cold.",
+      "s": 93.18,
+      "e": 99.6
+    },
+    {
+      "w": "She nestled between them, comforted by their calm breathing, and fell asleep.",
+      "s": 100.86,
+      "e": 107.56
+    }
+  ]
+}

@@ -1,1 +1,77 @@
-{"id":"ch2","voice":"Leda","duration":97.05,"words":[{"w":"Lumo began practising.","s":0,"e":2.523},{"w":"She tried standing on her hind legs, wobbling proudly like a little dancer.","s":2.523,"e":8.721},{"w":"She jumped so high that her nose nearly met the father’s face to impress him.","s":8.721,"e":15.586},{"w":"She attempted human sounds too, producing half-barks and curious noises as if mimicking speech.","s":15.586,"e":24.343},{"w":"One day the youngest girl tripped and scraped her knee.","s":24.793,"e":30.198},{"w":"She cried with great sorrow.","s":30.198,"e":33.019},{"w":"Lumo wanted desperately to make it better.","s":33.019,"e":39.284},{"w":"She sniffed around the room for something helpful and found the girl’s treasured blanket tucked inside a drawer.","s":39.284,"e":52.006},{"w":"She tugged it free with bright hope.","s":52.006,"e":55.688},{"w":"Instead, the fabric tore.","s":55.688,"e":58.51},{"w":"The girl burst into tears again and Lumo sat down in confusion, her ears drooping.","s":58.51,"e":67.788},{"w":"She had only wanted to help.","s":67.788,"e":72.618},{"w":"That night she lay by the fire and dreamed of walking on two legs, wearing mittens and boots, and being able to speak in comforting words.","s":73.068,"e":88.315},{"w":"She dreamed of belonging in the warm, clever world of humans.","s":88.315,"e":97.05}]}
+{
+  "id": "ch2",
+  "voice": "Leda",
+  "duration": 97.05,
+  "words": [
+    {
+      "w": "Lumo began practising.",
+      "s": 0.045,
+      "e": 2.455
+    },
+    {
+      "w": "She tried standing on her hind legs, wobbling proudly like a little dancer.",
+      "s": 3.035,
+      "e": 8.785
+    },
+    {
+      "w": "She jumped so high that her nose nearly met the father’s face to impress him.",
+      "s": 9.425,
+      "e": 14.865
+    },
+    {
+      "w": "She attempted human sounds too, producing half-barks and curious noises as if mimicking speech.",
+      "s": 15.935,
+      "e": 24.365
+    },
+    {
+      "w": "One day the youngest girl tripped and scraped her knee.",
+      "s": 26.245,
+      "e": 31.785
+    },
+    {
+      "w": "She cried with great sorrow.",
+      "s": 32.735,
+      "e": 35.155
+    },
+    {
+      "w": "Lumo wanted desperately to make it better.",
+      "s": 36.315,
+      "e": 39.815
+    },
+    {
+      "w": "She sniffed around the room for something helpful and found the girl’s treasured blanket tucked inside a drawer.",
+      "s": 40.615,
+      "e": 48.455
+    },
+    {
+      "w": "She tugged it free with bright hope.",
+      "s": 49.335,
+      "e": 52.375
+    },
+    {
+      "w": "Instead, the fabric tore.",
+      "s": 54.915,
+      "e": 58.205
+    },
+    {
+      "w": "The girl burst into tears again and Lumo sat down in confusion, her ears drooping.",
+      "s": 60.105,
+      "e": 68.745
+    },
+    {
+      "w": "She had only wanted to help.",
+      "s": 70.835,
+      "e": 72.565
+    },
+    {
+      "w": "That night she lay by the fire and dreamed of walking on two legs, wearing mittens and boots, and being able to speak in comforting words.",
+      "s": 73.185,
+      "e": 88.665
+    },
+    {
+      "w": "She dreamed of belonging in the warm, clever world of humans.",
+      "s": 90.725,
+      "e": 96.695
+    }
+  ]
+}

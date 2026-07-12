@@ -1,1 +1,77 @@
-{"id":"epilogue-ch","voice":"Leda","duration":98.952,"words":[{"w":"Spring returned slowly.","s":0,"e":2.641},{"w":"Snow slid from rooftops, rivers began to run again, and the scent of pine and birch filled the warming air.","s":2.641,"e":13.342},{"w":"The fields turned green.","s":13.342,"e":15.58},{"w":"Soon the midnight sun rose and the world glowed with gentle, endless daylight.","s":15.58,"e":23.728},{"w":"The cows were taken to pasture, and Lumo ran across the fields with the girls at her heels.","s":24.178,"e":33.67},{"w":"She no longer stood on two legs or squeezed into their clothes.","s":33.67,"e":40.341},{"w":"She was simply herself, joyous and full of life.","s":40.341,"e":46.071},{"w":"In the evenings, the family often told the story of the night Lumo wandered into the cold but found her way home.","s":46.521,"e":58.43},{"w":"The youngest girl always ended the tale by wrapping her arms around Lumo and whispering,  You are the best dog in the world.","s":58.43,"e":71.816},{"w":"Lumo did not need to understand the words.","s":72.266,"e":76.52},{"w":"She felt them in every quiet moment, in every warm touch, and  in the love that embraced her like home.","s":76.52,"e":89.503},{"w":"She was home.","s":89.953,"e":91.386},{"w":"She was loved.","s":91.386,"e":93.221},{"w":"And she was exactly what she was meant to be.","s":93.221,"e":98.952}]}
+{
+  "id": "epilogue-ch",
+  "voice": "Leda",
+  "duration": 98.952,
+  "words": [
+    {
+      "w": "Spring returned slowly.",
+      "s": 0,
+      "e": 2.559
+    },
+    {
+      "w": "Snow slid from rooftops, rivers began to run again, and the scent of pine and birch filled the warming air.",
+      "s": 3.019,
+      "e": 13.049
+    },
+    {
+      "w": "The fields turned green.",
+      "s": 14.169,
+      "e": 15.909
+    },
+    {
+      "w": "Soon the midnight sun rose and the world glowed with gentle, endless daylight.",
+      "s": 16.929,
+      "e": 24.309
+    },
+    {
+      "w": "The cows were taken to pasture, and Lumo ran across the fields with the girls at her heels.",
+      "s": 25.043,
+      "e": 33.743
+    },
+    {
+      "w": "She no longer stood on two legs or squeezed into their clothes.",
+      "s": 34.203,
+      "e": 39.813
+    },
+    {
+      "w": "She was simply herself, joyous and full of life.",
+      "s": 40.233,
+      "e": 45.453
+    },
+    {
+      "w": "In the evenings, the family often told the story of the night Lumo wandered into the cold but found her way home.",
+      "s": 46.124,
+      "e": 56.634
+    },
+    {
+      "w": "The youngest girl always ended the tale by wrapping her arms around Lumo and whispering,  You are the best dog in the world.",
+      "s": 57.514,
+      "e": 70.074
+    },
+    {
+      "w": "Lumo did not need to understand the words.",
+      "s": 70.834,
+      "e": 74.804
+    },
+    {
+      "w": "She felt them in every quiet moment, in every warm touch, and  in the love that embraced her like home.",
+      "s": 75.394,
+      "e": 87.354
+    },
+    {
+      "w": "She was home.",
+      "s": 87.894,
+      "e": 89.674
+    },
+    {
+      "w": "She was loved.",
+      "s": 90.964,
+      "e": 93.304
+    },
+    {
+      "w": "And she was exactly what she was meant to be.",
+      "s": 94.024,
+      "e": 98.424
+    }
+  ]
+}
