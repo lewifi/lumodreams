@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const AUDIO_DIR = join(__dirname, "..", "public", "audio");
 const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = "gemini-1.5-flash";
+const MODEL = "gemini-3.1-flash-lite";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -61,7 +61,7 @@ The response schema must be:
 ]
 `;
 
-  const url = `https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
   const body = {
     contents: [
       {
