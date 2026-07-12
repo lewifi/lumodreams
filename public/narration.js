@@ -302,9 +302,12 @@
     startBtn.innerHTML = '<span class="narrate-ico">▶</span> Read to me';
     startBtn.addEventListener("click", () => {
       if (currentVisible === "theend") {
-        scrollToSection("cover");
-        panelContainer.classList.add("is-intro");
-        positionIntro();
+        // Glide back to the cover, THEN grow into the intro pill — positioning it
+        // only once the cover buttons are actually on screen (else it lands wrong).
+        scrollToSection("cover", () => {
+          panelContainer.classList.add("is-intro");
+          positionIntro();
+        });
       } else {
         enable();
       }
@@ -897,70 +900,72 @@
       .forEach((s) => s.classList.remove("is-spoken", "is-current"));
   }
 
-  function scrollToSection(id) {
+  function scrollToSection(id, onDone) {
     const s = document.getElementById(id);
-    if (s) {
-      // Mute observer-driven section switches for the duration of this scroll.
-      suppressObserverUntil = performance.now() + (reduceMotion ? 200 : 1500);
-      currentVisible = id; // set immediately so observer doesn't trigger on intermediate positions
-      if (!enabled) {
-        updateStartButtonLabel();
-      }
-      const container = document.getElementById("story");
-      if (container) {
-        if (reduceMotion) {
-          container.scrollTop = s.offsetTop;
-        } else {
-          animateScrollTo(container, s.offsetTop, 1000);
-        }
+    if (!s) { if (onDone) onDone(); return; }
+    // Mute observer-driven section switches for the duration of this scroll.
+    suppressObserverUntil = performance.now() + (reduceMotion ? 200 : 1200);
+    currentVisible = id; // set immediately so observer doesn't trigger on intermediate positions
+    if (!enabled) updateStartButtonLabel();
+    const container = document.getElementById("story");
+    if (container) {
+      if (reduceMotion) {
+        container.scrollTop = s.offsetTop;
+        if (onDone) onDone();
       } else {
-        s.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+        animateScrollTo(container, s.offsetTop, 1000, { onDone, manageSnap: true });
       }
+    } else {
+      s.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      if (onDone) onDone();
     }
   }
 
   /* ---------- Slow, custom smooth scroll ---------- */
   let activeScrollAnimation = null;
 
-  function animateScrollTo(container, targetScrollTop, duration = 800) {
+  function animateScrollTo(container, targetScrollTop, duration = 800, opts = {}) {
+    const { onDone, manageSnap = false } = opts;
     if (activeScrollAnimation && activeScrollAnimation.container === container) {
       cancelAnimationFrame(activeScrollAnimation.rafId);
+      if (activeScrollAnimation.restoreSnap) activeScrollAnimation.restoreSnap();
     }
 
     const isWindow = container === window;
     const startScrollTop = isWindow ? window.scrollY : container.scrollTop;
     const distance = targetScrollTop - startScrollTop;
-    if (Math.abs(distance) < 2) return; // already close enough
+    if (Math.abs(distance) < 2) { if (onDone) onDone(); return; }
+
+    // Mandatory scroll-snap fights a JS scroll (it yanks to the nearest snap
+    // point → jerk). Disable it during the glide; restore afterwards. Only safe
+    // when the target is itself a snap point (section scrolls), hence manageSnap.
+    let snapManaged = false;
+    if (manageSnap && !isWindow && container.style) {
+      container.style.scrollSnapType = "none";
+      snapManaged = true;
+    }
+    const restoreSnap = () => { if (snapManaged) { container.style.scrollSnapType = ""; snapManaged = false; } };
 
     const startTime = performance.now();
-
     function step(now) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing: easeInOutQuad
-      const ease = progress < 0.5 
-        ? 2 * progress * progress 
-        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
-
+      const progress = Math.min((now - startTime) / duration, 1);
+      // easeInOutCubic — gentle, no jerk
+      const ease = progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
       const currentVal = startScrollTop + distance * ease;
-      if (isWindow) {
-        window.scrollTo(0, currentVal);
-      } else {
-        container.scrollTop = currentVal;
-      }
+      if (isWindow) window.scrollTo(0, currentVal);
+      else container.scrollTop = currentVal;
 
       if (progress < 1) {
         activeScrollAnimation.rafId = requestAnimationFrame(step);
       } else {
+        restoreSnap();
         activeScrollAnimation = null;
+        if (onDone) onDone();
       }
     }
-
-    activeScrollAnimation = {
-      container,
-      rafId: requestAnimationFrame(step)
-    };
+    activeScrollAnimation = { container, rafId: requestAnimationFrame(step), restoreSnap };
   }
 
   function getScrollContainer(element) {
