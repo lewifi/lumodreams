@@ -601,6 +601,15 @@
           if (enabled && (!playing || playing.id !== best) && loadingId !== best) {
             playSection(best); // handles music + ambience via updateMusic
           }
+          if (!enabled) {
+            if (best === "cover") {
+              panelContainer.classList.add("is-intro");
+              positionIntro();
+            } else {
+              panelContainer.classList.remove("is-intro");
+              panelContainer.style.transform = "";
+            }
+          }
         }
       },
       { threshold: [0, 0.3, 0.8] }
@@ -826,9 +835,7 @@
       scrollToSection(next);
       playSection(next);
     } else {
-      scrollToSection("theend"); // gentle close
-      enabled = false;
-      document.body.classList.remove("narrating");
+      disable();
       setToggleLabel();
     }
   }
@@ -855,7 +862,12 @@
       // Mute observer-driven section switches for the duration of this scroll.
       suppressObserverUntil = performance.now() + (reduceMotion ? 200 : 1500);
       currentVisible = id; // set immediately so observer doesn't trigger on intermediate positions
-      s.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      if (reduceMotion) {
+        s.scrollIntoView({ behavior: "auto", block: "start" });
+      } else {
+        const absoluteTop = s.getBoundingClientRect().top + window.scrollY;
+        animateScrollTo(window, absoluteTop, 1000);
+      }
     }
   }
 
@@ -867,7 +879,8 @@
       cancelAnimationFrame(activeScrollAnimation.rafId);
     }
 
-    const startScrollTop = container.scrollTop;
+    const isWindow = container === window;
+    const startScrollTop = isWindow ? window.scrollY : container.scrollTop;
     const distance = targetScrollTop - startScrollTop;
     if (Math.abs(distance) < 2) return; // already close enough
 
@@ -882,7 +895,12 @@
         ? 2 * progress * progress 
         : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-      container.scrollTop = startScrollTop + distance * ease;
+      const currentVal = startScrollTop + distance * ease;
+      if (isWindow) {
+        window.scrollTo(0, currentVal);
+      } else {
+        container.scrollTop = currentVal;
+      }
 
       if (progress < 1) {
         activeScrollAnimation.rafId = requestAnimationFrame(step);
@@ -930,7 +948,7 @@
       return;
     }
 
-    // Slow and smooth animation (800ms)
-    animateScrollTo(container, targetScrollTop, 800);
+    // Slow and smooth animation (1000ms)
+    animateScrollTo(container, targetScrollTop, 1000);
   }
 })();

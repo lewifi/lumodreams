@@ -96,30 +96,62 @@ function analyze(mono, sr) {
   return { firstOnset, lastOffset, onsets };
 }
 
-// ---- Snap each existing start to the nearest real speech onset -----------
-// The existing "s" values (from generation or a prior pass) place each sentence
-// in roughly the right spot; we just move each start onto the actual onset in the
-// waveform. Within the window, a nearby onset preceded by a longer pause (i.e. a
-// real sentence boundary) is preferred over a comma/clause pause.
-function snapStarts(priorStarts, onsets, lastOffset) {
-  const N = priorStarts.length;
-  const out = new Array(N);
-  out[0] = onsets[0].t; // first sentence = first speech
-  let prev = out[0];
-  for (let i = 1; i < N; i++) {
-    const p = priorStarts[i];
-    let best = null, bestScore = Infinity;
-    for (const o of onsets) {
-      if (o.t <= prev + 0.25) continue;         // stay after the previous start
-      const dist = Math.abs(o.t - p);
-      if (dist > SNAP_WINDOW) continue;
-      const score = dist - PRIOR_LAMBDA * Math.min(o.pause, PRIOR_CAP);
-      if (score < bestScore) { bestScore = score; best = o.t; }
-    }
-    out[i] = best != null ? best : Math.max(prev + 0.3, p); // keep prior if nothing close
-    prev = out[i];
+// ---- Choose the N-1 boundary onsets by global segmentation (prior-free) ---
+// Pick which real speech onsets are the sentence boundaries so that each
+// sentence's resulting duration best matches its syllable-weighted expectation,
+// anchored at both firstOnset and lastOffset (so it can't drift), and rewarding
+// onsets preceded by a longer pause (real sentence ends vs comma/clause pauses).
+// Returns { starts, ends } snapped to actual onsets.
+function segmentByOnsets(onsets, weights, firstOnset, lastOffset) {
+  const N = weights.length;
+  if (N === 1) return { starts: [firstOnset], ends: [lastOffset] };
+
+  const totalW = weights.reduce((a, b) => a + b, 0) || 1;
+  const span = lastOffset - firstOnset;
+  const expected = weights.map((w) => (w / totalW) * span);
+
+  const cuts = onsets.filter((o) => o.t > firstOnset + 0.15 && o.t < lastOffset - 0.15);
+  const M = cuts.length;
+  if (M < N - 1) {
+    // Not enough pauses — proportional fallback.
+    const starts = [], ends = [];
+    let acc = 0;
+    for (let i = 0; i < N; i++) { starts.push(firstOnset + span * (acc / totalW)); acc += weights[i]; ends.push(firstOnset + span * (acc / totalW)); }
+    return { starts, ends };
   }
-  return out;
+
+  const bonus = (m) => PRIOR_LAMBDA * Math.min(cuts[m].pause, PRIOR_CAP);
+  const INF = 1e18;
+  // dp[k][m] = min cost for sentences 0..k-1 with sentence k starting at cuts[m].
+  const dp = Array.from({ length: N }, () => new Float64Array(M).fill(INF));
+  const par = Array.from({ length: N }, () => new Int32Array(M).fill(-1));
+  for (let m = 0; m < M; m++) dp[1][m] = Math.abs(cuts[m].t - firstOnset - expected[0]) - bonus(m);
+  for (let k = 2; k < N; k++) {
+    for (let m = k - 1; m < M; m++) {
+      let best = INF, bi = -1;
+      for (let mp = k - 2; mp < m; mp++) {
+        const c = dp[k - 1][mp] + Math.abs(cuts[m].t - cuts[mp].t - expected[k - 1]);
+        if (c < best) { best = c; bi = mp; }
+      }
+      dp[k][m] = best - bonus(m);
+      par[k][m] = bi;
+    }
+  }
+  let best = INF, endM = -1;
+  for (let m = N - 2; m < M; m++) {
+    const c = dp[N - 1][m] + Math.abs(lastOffset - cuts[m].t - expected[N - 1]);
+    if (c < best) { best = c; endM = m; }
+  }
+  const chosen = new Array(N - 1);
+  for (let k = N - 1, m = endM; k >= 1; k--) { chosen[k - 1] = cuts[m]; m = par[k][m]; }
+
+  const starts = [firstOnset], ends = [];
+  for (let i = 1; i < N; i++) starts.push(chosen[i - 1].t);
+  for (let i = 0; i < N; i++) {
+    if (i < N - 1) ends.push(Math.max(starts[i] + 0.1, chosen[i].t - chosen[i].pause)); // speech end before the pause
+    else ends.push(lastOffset);
+  }
+  return { starts, ends };
 }
 
 async function alignTrack(trackId, dry) {
@@ -133,24 +165,8 @@ async function alignTrack(trackId, dry) {
   const { mono, sampleRate } = await decodeMono(mp3Path);
   const { firstOnset, lastOffset, onsets } = analyze(mono, sampleRate);
 
-  let starts = new Array(N);
-  const ends = new Array(N);
-  if (N === 1) {
-    starts[0] = firstOnset; ends[0] = lastOffset;
-  } else {
-    // Prior = existing starts if they look sane, else a syllable estimate.
-    let prior = data.words.map((w) => (typeof w.s === "number" ? w.s : NaN));
-    const sane = prior.every((v, i) => !isNaN(v) && (i === 0 || v > prior[i - 1] - 0.001));
-    if (!sane) {
-      const weights = sentences.map(sentenceWeight);
-      const tot = weights.reduce((a, b) => a + b, 0);
-      const span = lastOffset - firstOnset;
-      let acc = 0; prior = [];
-      for (let i = 0; i < N; i++) { prior.push(firstOnset + span * (acc / tot)); acc += weights[i]; }
-    }
-    starts = snapStarts(prior, onsets, lastOffset);
-    for (let i = 0; i < N; i++) ends[i] = i < N - 1 ? Math.max(starts[i] + 0.2, starts[i + 1] - 0.08) : lastOffset;
-  }
+  const weights = sentences.map(sentenceWeight);
+  const { starts, ends } = segmentByOnsets(onsets, weights, firstOnset, lastOffset);
 
   // Small anticipatory lead, keep strictly increasing.
   data.words = sentences.map((w, i) => {
