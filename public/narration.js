@@ -532,6 +532,14 @@
     return best;
   }
 
+  function preloadAllTimings() {
+    manifest.forEach((id) => {
+      getTiming(id).catch(() => {});
+      getTiming(id + "-eyebrow").catch(() => {});
+      getTiming(id + "-title").catch(() => {});
+    });
+  }
+
   function enable() {
     enabled = true;
     isPaused = false;
@@ -547,6 +555,8 @@
     pauseBtn.classList.remove("is-active");
     panelContainer.classList.remove("is-intro");
     panelContainer.style.transform = "";
+
+    preloadAllTimings();
 
     const target = getActiveSection() || manifest[0];
     currentVisible = target;
@@ -698,8 +708,13 @@
     };
 
     loadingId = null;
-    playTrack(0);
     updateMusic(id);
+    
+    setTimeout(() => {
+      if (enabled && playing && playing.id === id && playing.trackIdx === 0) {
+        playTrack(0);
+      }
+    }, 600);
     
     if (id === "epilogue-ch") {
       epilogueFaded = false;
