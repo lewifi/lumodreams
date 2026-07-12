@@ -12,7 +12,8 @@ public/            # everything served
   styles.css       # arctic/aurora theme; per-chapter text-legibility variables
   app.js           # lazy, view-gated chapter videos + preface modal
   videos/*.mp4      # 480×480 looping clips (kebab-case)
-  cover-and-back.png
+  interactive-cover.png   # cover screen (title baked in)
+  interactive-back.png    # "The End" + preface-modal backdrop (title-free sky)
 wrangler.jsonc     # static-assets-only Worker (no Worker script)
 ```
 
