@@ -84,28 +84,38 @@
      Pre-recorded narration + word-by-word highlighting + auto-scroll.
      Call wordify(document) once, then drive .is-spoken from a timing map
      synced to each chapter's audio. Left here so v1 markup needs no rewrite. */
-  // eslint-disable-next-line no-unused-vars
+  // Recursively wrap every visible word in <span class="word">, preserving
+  // inline wrappers (<em>) and <br>. Document order of the resulting .word
+  // spans matches the reading order the narration timings are built from.
+  function wordifyNode(node) {
+    const out = [];
+    node.childNodes.forEach((child) => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        child.textContent.split(/(\s+)/).forEach((tok) => {
+          if (tok === "") return;
+          if (/^\s+$/.test(tok)) {
+            out.push(document.createTextNode(tok));
+          } else {
+            const s = document.createElement("span");
+            s.className = "word";
+            s.textContent = tok;
+            out.push(s);
+          }
+        });
+      } else if (child.nodeType === Node.ELEMENT_NODE && child.tagName !== "BR") {
+        wordifyNode(child); // wrap words inside <em> etc. in place
+        out.push(child);
+      } else {
+        out.push(child.cloneNode(true)); // <br>, comments, …
+      }
+    });
+    node.replaceChildren(...out);
+  }
+
   function wordify(root) {
     root.querySelectorAll(".prose p").forEach((p) => {
       if (p.dataset.wordified) return;
-      const frag = document.createDocumentFragment();
-      p.childNodes.forEach((node) => {
-        if (node.nodeType === Node.TEXT_NODE) {
-          node.textContent.split(/(\s+)/).forEach((tok) => {
-            if (/\s+/.test(tok) || tok === "") {
-              frag.appendChild(document.createTextNode(tok));
-            } else {
-              const s = document.createElement("span");
-              s.className = "word";
-              s.textContent = tok;
-              frag.appendChild(s);
-            }
-          });
-        } else {
-          frag.appendChild(node.cloneNode(true));
-        }
-      });
-      p.replaceChildren(frag);
+      wordifyNode(p);
       p.dataset.wordified = "true";
     });
   }

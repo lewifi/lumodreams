@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "start": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "narrate": "node scripts/generate-narration.mjs"
   },
   "devDependencies": {
     "wrangler": "^4"
