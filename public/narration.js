@@ -282,12 +282,10 @@
   let controlsDiv;
   let pauseBtn;
   let musicBtn;
-  let layoutBtn;
   let stopBtn;
 
   let isPaused = false;
   let isMusicMuted = false;
-  let isSplitLayout = false;
 
   function buildToggle() {
     const scrim = document.createElement("div");
@@ -322,13 +320,6 @@
     musicBtn.addEventListener("click", toggleMusic);
     controlsDiv.appendChild(musicBtn);
 
-    layoutBtn = document.createElement("button");
-    layoutBtn.type = "button";
-    layoutBtn.className = "narrate-btn";
-    layoutBtn.innerHTML = '📖 Split';
-    layoutBtn.addEventListener("click", toggleLayout);
-    controlsDiv.appendChild(layoutBtn);
-
     stopBtn = document.createElement("button");
     stopBtn.type = "button";
     stopBtn.className = "narrate-btn";
@@ -343,18 +334,6 @@
     window.addEventListener("resize", () => {
       if (panelContainer.classList.contains("is-intro")) positionIntro();
     });
-  }
-
-  function toggleLayout() {
-    isSplitLayout = !isSplitLayout;
-    document.body.classList.toggle("layout-split", isSplitLayout);
-    if (isSplitLayout) {
-      layoutBtn.innerHTML = '🖼 Overlay';
-      layoutBtn.classList.add("is-active");
-    } else {
-      layoutBtn.innerHTML = '📖 Split';
-      layoutBtn.classList.remove("is-active");
-    }
   }
 
   function fadeVideoVolume(section, targetVol, duration = 1500) {
