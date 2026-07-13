@@ -23,6 +23,7 @@
   let enabled = false;         // narration mode on/off
   let playing = null;          // { id, spans, words, idx, raf }
   let loadingId = null;        // guards against double-starts
+  let startTimer = null;       // settle timer that starts a section's first track
   let currentVisible = null;   // most-visible narratable section id
   let suppressObserverUntil = 0; // ignore observer switches during programmatic scroll
   const timingCache = new Map();
@@ -746,9 +747,16 @@
 
     loadingId = null;
     updateMusic(id);
-    
-    setTimeout(() => {
-      if (enabled && playing && playing.id === id && playing.trackIdx === 0) {
+
+    // Start the first track after a short settle. Tie the timer to THIS play
+    // instance so a stray second setup can't fire the eyebrow twice ("Chapter…
+    // Chapter One"). `started` guards against any duplicate timer.
+    const myPlaying = playing;
+    if (startTimer) clearTimeout(startTimer);
+    startTimer = setTimeout(() => {
+      startTimer = null;
+      if (enabled && playing === myPlaying && !playing.started && playing.trackIdx === 0) {
+        playing.started = true;
         playTrack(0);
       }
     }, 600);
@@ -869,6 +877,7 @@
   }
 
   function stop() {
+    if (startTimer) { clearTimeout(startTimer); startTimer = null; }
     audio.pause();
     playing = null;
     document.querySelectorAll(".chapter").forEach((s) => s.classList.remove("is-morphed"));
