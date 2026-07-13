@@ -30,6 +30,8 @@
   let epilogueFaded = false;
   let scrollLoopRaf = null;
   let isProgrammaticScrolling = false;
+  let lastAudioTime = 0;
+  let lastSystemTime = 0;
 
   const audio = new Audio();
   audio.preload = "auto";
@@ -898,6 +900,9 @@
 
   /* ---------- Smooth Continuous Scroll Loop ---------- */
   function startScrollLoop() {
+    lastAudioTime = audio.currentTime;
+    lastSystemTime = performance.now();
+
     if (scrollLoopRaf) cancelAnimationFrame(scrollLoopRaf);
 
     function tick() {
@@ -915,7 +920,17 @@
           const s = playing.section;
           const maxScroll = s.offsetHeight - container.clientHeight;
           if (maxScroll > 0) {
-            const progress = audio.currentTime / (audio.duration || currentTrack.duration || 1);
+            if (audio.currentTime !== lastAudioTime) {
+              lastAudioTime = audio.currentTime;
+              lastSystemTime = performance.now();
+            }
+            let currentTime = audio.currentTime;
+            if (!audio.paused) {
+              const elapsed = (performance.now() - lastSystemTime) / 1000;
+              const limit = audio.duration || currentTrack.duration || 1;
+              currentTime = Math.min(limit, lastAudioTime + elapsed * audio.playbackRate);
+            }
+            const progress = currentTime / (audio.duration || currentTrack.duration || 1);
             container.scrollTop = s.offsetTop + maxScroll * progress;
           }
         }
