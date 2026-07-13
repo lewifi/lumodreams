@@ -29,6 +29,7 @@
   const timingCache = new Map();
   let epilogueFaded = false;
   let scrollLoopRaf = null;
+  let isProgrammaticScrolling = false;
 
   const audio = new Audio();
   audio.preload = "auto";
@@ -359,8 +360,13 @@
     const videos = [section._video, section._videoMorph].filter(Boolean);
     if (videos.length === 0) return;
 
-    // Connect to Web Audio graph (low-pass filter) once active
-    videos.forEach((v) => connectVideoToAudioGraph(v));
+    // Connect to Web Audio graph (low-pass filter) once active (except for mute-only tracks)
+    videos.forEach((v) => {
+      const isMutedTrack = v.src.includes("a-puppys-world.mp4") || v.src.includes("lumo1.mp4");
+      if (!isMutedTrack) {
+        connectVideoToAudioGraph(v);
+      }
+    });
 
     const startVols = videos.map((v) => {
       const isMutedTrack = v.src.includes("a-puppys-world.mp4") || v.src.includes("lumo1.mp4");
@@ -625,10 +631,8 @@
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) ratios.set(e.target.id, e.isIntersecting ? e.intersectionRatio : 0);
-        // During an auto-advance scroll the outgoing section is transiently the
-        // "most visible" — ignore switches until the programmatic scroll settles,
-        // so we don't double-start the next chapter's narration.
-        if (performance.now() < suppressObserverUntil) return;
+        // Ignore switches during programmatic scrolls so we don't double-start chapters
+        if (isProgrammaticScrolling || performance.now() < suppressObserverUntil) return;
         let best = null, bestR = 0;
         for (const id of manifest) {
           const r = ratios.get(id) || 0;
@@ -876,8 +880,9 @@
     const next = manifest[manifest.indexOf(finishedId) + 1];
     if (next) {
       currentVisible = next;
-      scrollToSection(next);
-      playSection(next);
+      scrollToSection(next, () => {
+        playSection(next);
+      });
     } else {
       disable(); // last section done — hides the pill (see refreshIntroPanel)
     }
@@ -960,13 +965,19 @@
   function scrollToSection(id, onDone) {
     const s = document.getElementById(id);
     if (!s) { if (onDone) onDone(); return; }
-    // Mute observer-driven section switches for the duration of this scroll (and a
-    // little after it settles) so it can't re-trigger the section it just left.
+    
+    isProgrammaticScrolling = true;
     suppressObserverUntil = performance.now() + (reduceMotion ? 200 : 1600);
     currentVisible = id; // set immediately so observer doesn't trigger on intermediate positions
-    // Update the pill only once the scroll settles (so positionIntro measures the
-    // cover buttons in their final on-screen position, and the pill returns on top).
-    const finish = () => { refreshIntroPanel(id); if (onDone) onDone(); };
+    
+    const finish = () => {
+      refreshIntroPanel(id);
+      setTimeout(() => {
+        isProgrammaticScrolling = false;
+        if (onDone) onDone();
+      }, 100);
+    };
+    
     const container = document.getElementById("story");
     if (container) {
       if (reduceMotion) {
@@ -977,7 +988,7 @@
       }
     } else {
       s.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-      finish();
+      setTimeout(finish, 1200);
     }
   }
 
