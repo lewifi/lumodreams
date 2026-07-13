@@ -282,10 +282,12 @@
   let controlsDiv;
   let pauseBtn;
   let musicBtn;
+  let layoutBtn;
   let stopBtn;
 
   let isPaused = false;
   let isMusicMuted = false;
+  let isSplitLayout = false;
 
   function buildToggle() {
     const scrim = document.createElement("div");
@@ -319,6 +321,13 @@
     musicBtn.innerHTML = '🔊 Music';
     musicBtn.addEventListener("click", toggleMusic);
     controlsDiv.appendChild(musicBtn);
+
+    layoutBtn = document.createElement("button");
+    layoutBtn.type = "button";
+    layoutBtn.className = "narrate-btn";
+    layoutBtn.innerHTML = '📖 Split';
+    layoutBtn.addEventListener("click", toggleLayout);
+    controlsDiv.appendChild(layoutBtn);
 
     stopBtn = document.createElement("button");
     stopBtn.type = "button";
@@ -443,6 +452,18 @@
     const dy = Math.round(targetY - (r.top + r.height / 2));
     panelContainer.style.transform = `translate(${dx}px, ${dy}px)`;
     requestAnimationFrame(() => { panelContainer.style.transition = ""; });
+  }
+
+  function toggleLayout() {
+    isSplitLayout = !isSplitLayout;
+    document.body.classList.toggle("layout-split", isSplitLayout);
+    if (isSplitLayout) {
+      layoutBtn.innerHTML = '🖼 Overlay';
+      layoutBtn.classList.add("is-active");
+    } else {
+      layoutBtn.innerHTML = '📖 Split';
+      layoutBtn.classList.remove("is-active");
+    }
   }
 
   function togglePause() {
@@ -810,11 +831,14 @@
         setGroupClass(spans[maxI], "is-current", true);
         setGroupClass(spans[maxI], "is-spoken", false);
 
-        // Auto-scroll the current sentence into view if needed
-        const firstSpan = spans[maxI][0];
+        // Only follow the highlight once the current sentence nears going off the
+        // BOTTOM of the screen (not on every sentence, and never scrolling up).
+        const group = spans[maxI];
+        const firstSpan = group[0];
+        const lastSpan = group[group.length - 1];
         const viewportHeight = window.innerHeight;
-        const rect = firstSpan.getBoundingClientRect();
-        if (rect.bottom > viewportHeight * 0.75 || rect.top < viewportHeight * 0.25) {
+        const bottom = lastSpan.getBoundingClientRect().bottom;
+        if (bottom > viewportHeight * 0.82) {
           const isInModal = playing.section.closest(".modal");
           if (isInModal || playing.section.offsetHeight > viewportHeight) {
             scrollWordIntoView(firstSpan);
@@ -893,8 +917,9 @@
   function scrollToSection(id, onDone) {
     const s = document.getElementById(id);
     if (!s) { if (onDone) onDone(); return; }
-    // Mute observer-driven section switches for the duration of this scroll.
-    suppressObserverUntil = performance.now() + (reduceMotion ? 200 : 1200);
+    // Mute observer-driven section switches for the duration of this scroll (and a
+    // little after it settles) so it can't re-trigger the section it just left.
+    suppressObserverUntil = performance.now() + (reduceMotion ? 200 : 1600);
     currentVisible = id; // set immediately so observer doesn't trigger on intermediate positions
     // Update the pill only once the scroll settles (so positionIntro measures the
     // cover buttons in their final on-screen position, and the pill returns on top).
@@ -986,18 +1011,23 @@
     if (!container) return;
 
     const offsetTop = getOffsetTopRelativeTo(wordSpan, container);
-    const targetScrollTop = Math.max(0, Math.min(
-      offsetTop - (container.clientHeight / 2) + (wordSpan.clientHeight / 2),
-      container.scrollHeight - container.clientHeight
-    ));
+    // Bring the sentence to ~62% down the viewport (lower third), not centred —
+    // just enough to keep it comfortably on screen with room to read ahead.
+    let target = offsetTop - container.clientHeight * 0.62;
 
-    if (reduceMotion) {
-      container.scrollTop = targetScrollTop;
-      return;
+    // Clamp to the CURRENT chapter so we never scroll far enough to reveal the
+    // next chapter — it stays hidden until this one finishes (then scrollToSection).
+    const section = playing && playing.section;
+    if (section && container === document.getElementById("story")) {
+      const chapTop = getOffsetTopRelativeTo(section, container);
+      const chapMax = chapTop + section.offsetHeight - container.clientHeight;
+      target = Math.max(chapTop, Math.min(target, Math.max(chapTop, chapMax)));
+    } else {
+      target = Math.max(0, Math.min(target, container.scrollHeight - container.clientHeight));
     }
 
-    // Slow, gentle glide to the current sentence (~2s). Snap is already off
-    // during narration (see enable), so this won't be yanked back to the top.
-    animateScrollTo(container, targetScrollTop, 2000);
+    if (reduceMotion) { container.scrollTop = target; return; }
+    // Slow, gentle glide (~2s). Snap is off during narration so it won't yank back.
+    animateScrollTo(container, target, 2000);
   }
 })();
