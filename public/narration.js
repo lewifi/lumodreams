@@ -869,8 +869,15 @@
     const next = manifest[manifest.indexOf(finishedId) + 1];
     if (next) {
       currentVisible = next;
-      scrollToSection(next);
-      playSection(next);
+      // Scroll to the next chapter FIRST, then start its narration once the glide
+      // settles. Starting playback in parallel made the eyebrow ("Chapter Two")
+      // speak while the previous chapter was still on screen, and could double up
+      // with the observer when the scroll landed. One ordered start, post-scroll.
+      scrollToSection(next, () => {
+        if (enabled && currentVisible === next && (!playing || playing.id !== next)) {
+          playSection(next);
+        }
+      });
     } else {
       disable(); // last section done — hides the pill (see refreshIntroPanel)
     }
@@ -917,10 +924,18 @@
     // Mute observer-driven section switches for the duration of this scroll.
     suppressObserverUntil = performance.now() + (reduceMotion ? 200 : 1200);
     currentVisible = id; // set immediately so observer doesn't trigger on intermediate positions
+    const container = document.getElementById("story");
     // Update the pill only once the scroll settles (so positionIntro measures the
     // cover buttons in their final on-screen position, and the pill returns on top).
-    const finish = () => { refreshIntroPanel(id); if (onDone) onDone(); };
-    const container = document.getElementById("story");
+    const finish = () => {
+      // Land exactly on the section top. Layout can shift during the ~1s glide
+      // (a late video / frosted-bg reflow), leaving us a few px short so the
+      // sticky mobile video sits below the top edge with the previous chapter
+      // peeking in above it. Re-measure and snap so the video stays flush.
+      if (container) container.scrollTop = s.offsetTop;
+      refreshIntroPanel(id);
+      if (onDone) onDone();
+    };
     if (container) {
       if (reduceMotion) {
         container.scrollTop = s.offsetTop;
