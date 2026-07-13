@@ -906,32 +906,33 @@
     if (scrollLoopRaf) cancelAnimationFrame(scrollLoopRaf);
 
     function tick() {
-      if (!playing || isPaused || audio.paused) {
+      if (!playing) {
         scrollLoopRaf = null;
         return;
       }
 
-      const { tracks, trackIdx } = playing;
-      const currentTrack = tracks[trackIdx];
-      if (currentTrack && currentTrack.suffix === "") {
-        const isInModal = playing.section.closest(".modal");
-        if (!isInModal) {
-          const container = document.getElementById("story");
-          const s = playing.section;
-          const maxScroll = s.offsetHeight - container.clientHeight;
-          if (maxScroll > 0) {
-            if (audio.currentTime !== lastAudioTime) {
-              lastAudioTime = audio.currentTime;
-              lastSystemTime = performance.now();
-            }
-            let currentTime = audio.currentTime;
-            if (!audio.paused) {
+      if (!isPaused && !audio.paused) {
+        const { tracks, trackIdx } = playing;
+        const currentTrack = tracks[trackIdx];
+        if (currentTrack && currentTrack.suffix === "") {
+          const isInModal = playing.section.closest(".modal");
+          if (!isInModal) {
+            const container = document.getElementById("story");
+            const s = playing.section;
+            const maxScroll = s.offsetHeight - container.clientHeight;
+            if (maxScroll > 0) {
+              if (audio.currentTime !== lastAudioTime) {
+                lastAudioTime = audio.currentTime;
+                lastSystemTime = performance.now();
+              }
+              let currentTime = audio.currentTime;
               const elapsed = (performance.now() - lastSystemTime) / 1000;
               const limit = audio.duration || currentTrack.duration || 1;
               currentTime = Math.min(limit, lastAudioTime + elapsed * audio.playbackRate);
+              
+              const progress = currentTime / limit;
+              container.scrollTop = s.offsetTop + maxScroll * progress;
             }
-            const progress = currentTime / (audio.duration || currentTrack.duration || 1);
-            container.scrollTop = s.offsetTop + maxScroll * progress;
           }
         }
       }

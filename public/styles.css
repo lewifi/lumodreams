@@ -105,11 +105,7 @@ body.narrating #story {
 }
 
 .scrim {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: var(--scrim);
-  pointer-events: none;
+  display: none;
 }
 
 /* decorative snow/stars on the cover screens (added by snow.js, desktop only) */
