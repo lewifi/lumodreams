@@ -60,7 +60,7 @@
   const MUSIC_VOL = 0.04;         // melody level
   const VIDEO_SFX_VOL = 0.02;     // separate volume level for video SFX
   const MUSIC_LOWPASS_HZ = 1200;  // roll off highs so the music is warm/soft and sits back
-  const MUSIC_FADEOUT_MS = 25000; // long gradual fade as chapter 1 begins
+  const MUSIC_FADEOUT_MS = 90000; // long gradual fade as chapter 1 begins
 
   // Route the audio elements through a shared low-pass filter (Web Audio).
   // Must be created after a user gesture (enable), and only once per element.
