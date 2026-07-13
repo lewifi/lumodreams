@@ -28,6 +28,7 @@
   let suppressObserverUntil = 0; // ignore observer switches during programmatic scroll
   const timingCache = new Map();
   let epilogueFaded = false;
+  let scrollLoopRaf = null;
 
   const audio = new Audio();
   audio.preload = "auto";
@@ -243,6 +244,7 @@
         if (playing && !audio.paused) {
           audio.pause();
           wasPlayingBeforeHide = true;
+          stopScrollLoop();
         }
         if (activeMusic && !activeMusic.paused) {
           activeMusic.pause();
@@ -252,6 +254,7 @@
         if (wasPlayingBeforeHide && playing && !isPaused) {
           audio.play().catch(() => {});
           wasPlayingBeforeHide = false;
+          startScrollLoop();
         }
         if (enabled && activeMusic && activeMusic.paused && currentMusicUrl && !isMusicMuted && !isPaused) {
           activeMusic.play().catch(() => {});
@@ -477,12 +480,14 @@
       ambience.pause();
       pauseBtn.innerHTML = '▶ Resume';
       pauseBtn.classList.add("is-active");
+      stopScrollLoop();
     } else {
       audio.play().catch(() => {});
       if (activeMusic && !isMusicMuted) activeMusic.play().catch(() => {});
       if (!isMusicMuted && ambienceTarget > 0) ambience.play().catch(() => {});
       pauseBtn.innerHTML = '⏸ Pause';
       pauseBtn.classList.remove("is-active");
+      startScrollLoop();
     }
     updateVideoMuteState();
   }
@@ -698,6 +703,7 @@
           suffix: cand.suffix,
           spans,
           words: timing.words,
+          duration: timing.duration,
         });
       }
     }
@@ -799,6 +805,7 @@
       stop();
       return; // autoplay blocked
     }
+    startScrollLoop();
     updateHighlight(); // highlight the first sentence; timeupdate drives the rest
   }
 
@@ -831,18 +838,14 @@
         setGroupClass(spans[maxI], "is-current", true);
         setGroupClass(spans[maxI], "is-spoken", false);
 
-        // Only follow the highlight once the current sentence nears going off the
-        // BOTTOM of the screen (not on every sentence, and never scrolling up).
         const group = spans[maxI];
         const firstSpan = group[0];
         const lastSpan = group[group.length - 1];
         const viewportHeight = window.innerHeight;
         const bottom = lastSpan.getBoundingClientRect().bottom;
-        if (bottom > viewportHeight * 0.82) {
-          const isInModal = playing.section.closest(".modal");
-          if (isInModal || playing.section.offsetHeight > viewportHeight) {
-            scrollWordIntoView(firstSpan);
-          }
+        const isInModal = playing.section.closest(".modal");
+        if (isInModal && bottom > viewportHeight * 0.82) {
+          scrollWordIntoView(firstSpan);
         }
       }
       playing.idx = maxI;
@@ -852,6 +855,7 @@
   function onEnded() {
     if (!playing) return;
     playing.spans.flat().forEach((s) => { s.classList.add("is-spoken"); s.classList.remove("is-current"); });
+    stopScrollLoop();
     
     // Play next track in the queue for this chapter section if there is one
     if (playing.trackIdx + 1 < playing.tracks.length) {
@@ -884,6 +888,45 @@
     audio.pause();
     playing = null;
     document.querySelectorAll(".chapter").forEach((s) => s.classList.remove("is-morphed"));
+    stopScrollLoop();
+  }
+
+  /* ---------- Smooth Continuous Scroll Loop ---------- */
+  function startScrollLoop() {
+    if (scrollLoopRaf) cancelAnimationFrame(scrollLoopRaf);
+
+    function tick() {
+      if (!playing || isPaused || audio.paused) {
+        scrollLoopRaf = null;
+        return;
+      }
+
+      const { tracks, trackIdx } = playing;
+      const currentTrack = tracks[trackIdx];
+      if (currentTrack && currentTrack.suffix === "") {
+        const isInModal = playing.section.closest(".modal");
+        if (!isInModal) {
+          const container = document.getElementById("story");
+          const s = playing.section;
+          const maxScroll = s.offsetHeight - container.clientHeight;
+          if (maxScroll > 0) {
+            const progress = audio.currentTime / (audio.duration || currentTrack.duration || 1);
+            container.scrollTop = s.offsetTop + maxScroll * progress;
+          }
+        }
+      }
+
+      scrollLoopRaf = requestAnimationFrame(tick);
+    }
+
+    scrollLoopRaf = requestAnimationFrame(tick);
+  }
+
+  function stopScrollLoop() {
+    if (scrollLoopRaf) {
+      cancelAnimationFrame(scrollLoopRaf);
+      scrollLoopRaf = null;
+    }
   }
 
   /* ---------- Highlight helpers ---------- */
