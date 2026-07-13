@@ -548,6 +548,12 @@
     document.body.classList.remove("narration-paused");
     panelContainer.style.display = ""; // ensure the panel is visible (it's hidden at The End)
 
+    // Turn off mandatory scroll-snap while narrating — the code drives all
+    // scrolling (auto-advance + follow the sentence), and snap otherwise yanks
+    // an intra-chapter scroll back to the chapter start.
+    const storyEl = document.getElementById("story");
+    if (storyEl) { storySnapBase = "none"; storyEl.style.scrollSnapType = "none"; }
+
     // Swap the big intro pill for the controls, then fly the panel to the corner:
     // clearing the intro transform lets the CSS transition animate it home.
     startBtn.style.display = "none";
@@ -601,6 +607,9 @@
     fadeOutMusic();
     setAmbience(0);
     syncVideoVolumes();
+    // Restore mandatory scroll-snap for manual reading.
+    const storyEl = document.getElementById("story");
+    if (storyEl) { storySnapBase = ""; storyEl.style.scrollSnapType = ""; }
     refreshIntroPanel(currentVisible); // hides the pill at "The End"
   }
 
@@ -918,6 +927,9 @@
 
   /* ---------- Slow, custom smooth scroll ---------- */
   let activeScrollAnimation = null;
+  // The #story snap state we return to after a JS scroll: "none" while narrating
+  // (the code drives all scrolling), "" (CSS mandatory) for manual reading.
+  let storySnapBase = "";
 
   function animateScrollTo(container, targetScrollTop, duration = 800, opts = {}) {
     const { onDone, manageSnap = false } = opts;
@@ -939,7 +951,7 @@
       container.style.scrollSnapType = "none";
       snapManaged = true;
     }
-    const restoreSnap = () => { if (snapManaged) { container.style.scrollSnapType = ""; snapManaged = false; } };
+    const restoreSnap = () => { if (snapManaged) { container.style.scrollSnapType = storySnapBase; snapManaged = false; } };
 
     const startTime = performance.now();
     function step(now) {
@@ -996,7 +1008,8 @@
       return;
     }
 
-    // Slow and smooth animation (1000ms)
-    animateScrollTo(container, targetScrollTop, 1000);
+    // Slow, gentle glide to the current sentence (~2s). Snap is already off
+    // during narration (see enable), so this won't be yanked back to the top.
+    animateScrollTo(container, targetScrollTop, 2000);
   }
 })();
